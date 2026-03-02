@@ -1,12 +1,12 @@
 from app.repositories.user_repository import UserRepository
-from app.schemas.user_schema import User
+from app.schemas.user_schema import UserCreate
 
 class UserService:
     def __init__(self, repository: UserRepository):
         self.repository = repository
 
     def create_user(self, first_name: str, last_name: str, email: str):
-        user = User(
+        user = UserCreate(
             first_name=first_name, 
             last_name=last_name, 
             email=email

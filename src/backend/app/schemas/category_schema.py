@@ -7,3 +7,7 @@ class Category(BaseModel):
     user_id: UUID
     category_type: str
     created_at: datetime | None = None
+
+class CategoryCustom(BaseModel):
+    name:str
+    category_type: str
