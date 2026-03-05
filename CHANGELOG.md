@@ -10,6 +10,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [0.4.0] - 2026-03-05
+
+### Added
+- `CHANGELOG.md` to document project updates and version history (`59b8e65`)
+- Uploaded Software Design Document (`5c51b3e`)
+- Software Design Document card to the static documentation page
+
+---
+
 ## [0.3.0] - 2026-03-03
 
 ### Added
