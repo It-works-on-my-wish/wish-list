@@ -39,7 +39,16 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded }) => {
     }
     setIsSubmitting(true);
     try {
-      await addProduct(TEST_USER_ID, formData);
+      const rawCategoryId = formData.category_id || '';
+      const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(rawCategoryId);
+      const payload = {
+        ...formData,
+        name: formData.name.trim(),
+        url: formData.url?.trim() ? formData.url.trim() : null,
+        category_id: isUuid ? rawCategoryId : null,
+      };
+
+      await addProduct(TEST_USER_ID, payload);
       if (onProductAdded) {
         onProductAdded();
       }
@@ -55,7 +64,8 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded }) => {
       });
     } catch (error) {
        console.error("Failed to add product:", error);
-       alert("Failed to add product.");
+       const message = error?.response?.data?.detail;
+       alert(`Failed to add product${message ? `: ${JSON.stringify(message)}` : '.'}`);
     } finally {
        setIsSubmitting(false);
     }

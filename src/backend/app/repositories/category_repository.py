@@ -28,6 +28,7 @@ class CategoryRepository:
         data = response.data[0]
 
         return Category(
+            id=data["id"],
             name=data["name"],
             user_id=data["user_id"],
             category_type=data["category_type"],
@@ -46,6 +47,7 @@ class CategoryRepository:
         for category in categories_raw:
             categories.append(
                 Category(
+                    id=category["id"],
                     name=category["name"],
                     user_id=category["user_id"],
                     category_type=category["category_type"],
