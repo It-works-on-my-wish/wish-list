@@ -1,5 +1,5 @@
 from pydantic import BaseModel, HttpUrl
-from typing import Optional
+from typing import Literal, Optional
 from uuid import UUID
 from datetime import datetime
 
@@ -12,6 +12,7 @@ class ProductBase(BaseModel):
     auto_track: bool = True
     current_price: Optional[float] = None
     target_price: Optional[float] = None
+    purchase_state: Literal["pending", "purchased"] = "pending"
 
 class ProductCreate(ProductBase):
     pass
@@ -32,3 +33,4 @@ class ProductUpdate(BaseModel):
     check_frequency: Optional[str] = None
     auto_track: Optional[bool] = None
     target_price: Optional[float] = None
+    purchase_state: Optional[Literal["pending", "purchased"]] = None
