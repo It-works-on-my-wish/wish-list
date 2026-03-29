@@ -1,5 +1,7 @@
 # Wishlist and Price Tracking Application
 
+![Wishlist UI Screenshot](./UI_screenshot.png)
+
 This is a full-stack web application designed for managing wishlists and tracking product prices. 
 
 ## Project Structure
