@@ -10,7 +10,6 @@
 }
 
 * {
-    overflow-x: hidden;
     margin: 0;
     padding: 0;
     box-sizing: border-box;
@@ -20,16 +19,16 @@ body {
     font-family: var(--font-main);
     background-color: var(--bg-color);
     color: var(--text-primary);
-    min-height: 100vh;
     height: 100vh;
     display: flex;
     flex-direction: column;
     position: relative;
+    overflow: hidden;
 }
 
 /* Background Effects */
 .background-blob {
-    position: absolute;
+    position: fixed;
     width: 600px;
     height: 600px;
     background: radial-gradient(circle, rgba(56, 189, 248, 0.15) 0%, rgba(0, 0, 0, 0) 70%);
@@ -65,7 +64,7 @@ body {
 
 .container {
     max-width: 1200px;
-    margin: 0 auto;
+    margin: 2rem auto;
     padding: 0 2rem;
     width: 100%;
 }
@@ -78,9 +77,9 @@ header {
 }
 
 h1 {
-    font-size: 3.5rem;
+    font-size: 2.8rem;
     font-weight: 700;
-    margin-bottom: 1rem;
+    margin-bottom: 0.5rem;
     background: linear-gradient(135deg, #fff 0%, #cbd5e1 100%);
     background-clip: text;
     -webkit-background-clip: text;
@@ -98,19 +97,16 @@ h1 {
 
 /* Main Content */
 main {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
     align-items: center;
 }
 
 .documents-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
     gap: 1.5rem;
     width: 100%;
-    max-width: 900px;
-    padding-bottom: 2rem;
+    max-width: 1100px;
+    padding-bottom: 0;
 }
 
 /* Cards */
@@ -119,7 +115,7 @@ main {
     border: 1px solid var(--card-border);
     backdrop-filter: blur(12px);
     border-radius: 16px;
-    padding: 1.5rem;
+    padding: 1rem;
     text-decoration: none;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
@@ -155,14 +151,14 @@ main {
 
 .card-icon {
     color: var(--accent-color);
-    margin-bottom: 1.5rem;
+    margin-bottom: 1rem;
     background: rgba(56, 189, 248, 0.1);
-    width: 48px;
-    height: 48px;
+    width: 40px;
+    height: 40px;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 12px;
+    border-radius: 10px;
     transition: transform 0.3s ease;
 }
 
@@ -172,16 +168,16 @@ main {
 
 .card-content h2 {
     color: var(--text-primary);
-    font-size: 1.5rem;
+    font-size: 1.15rem;
     margin-bottom: 0.5rem;
     font-weight: 600;
 }
 
 .card-content p {
     color: var(--text-secondary);
-    font-size: 0.95rem;
-    line-height: 1.6;
-    margin-bottom: 1.5rem;
+    font-size: 0.9rem;
+    line-height: 1.4;
+    margin-bottom: 1rem;
 }
 
 .card-action {
@@ -201,9 +197,9 @@ main {
 /* Members Section */
 .members-section {
     width: 100%;
-    max-width: 900px;
-    padding-top: 1.5rem;
-    padding-bottom: 2rem;
+    max-width: 1100px;
+    padding-top: 2rem;
+    padding-bottom: 0;
     border-top: 1px solid var(--card-border);
     animation: fadeInUp 0.8s ease-out 0.6s backwards;
     flex-shrink: 0;
@@ -211,24 +207,24 @@ main {
 
 .section-title {
     text-align: center;
-    font-size: 1.5rem;
-    margin-bottom: 1.5rem;
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
     font-weight: 600;
     color: var(--text-primary);
 }
 
 .members-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 2rem;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1.5rem;
 }
 
 .member-card {
     background: var(--card-bg);
     border: 1px solid var(--card-border);
     backdrop-filter: blur(12px);
-    border-radius: 16px;
-    padding: 1rem;
+    border-radius: 12px;
+    padding: 0.75rem;
     text-align: center;
     transition: all 0.3s ease;
 }
@@ -240,9 +236,9 @@ main {
 }
 
 .member-avatar {
-    width: 60px;
-    height: 60px;
-    margin: 0 auto 1rem;
+    width: 48px;
+    height: 48px;
+    margin: 0 auto 0.5rem;
     background: rgba(56, 189, 248, 0.1);
     border-radius: 50%;
     display: flex;
@@ -260,9 +256,9 @@ main {
 
 .member-card h3 {
     color: var(--text-primary);
-    font-size: 1.1rem;
+    font-size: 1rem;
     font-weight: 600;
-    margin-bottom: 0.25rem;
+    margin-bottom: 0.15rem;
 }
 
 .member-card p {
@@ -272,10 +268,10 @@ main {
 
 /* Footer */
 footer {
-    padding: 1rem 0;
+    padding: 0.5rem 0;
     text-align: center;
     color: var(--text-secondary);
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     border-top: 1px solid var(--card-border);
     margin-top: auto;
 }
