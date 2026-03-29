@@ -10,6 +10,29 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [0.5.0] - 2026-03-29
+
+### Added
+- UI screenshot to README documentation (`93aeb69`)
+- `.gitignore` file for frontend project (`ea7fc74`)
+- Project documentation and automated installation scripts (`3635055`)
+- Product management system with database schema, API endpoints, and frontend integration (`e0a339b`)
+- Product auto-scraping using Factory pattern and UI components for wishlist management (`6991c5d`)
+- Strategy pattern for Product Addition and Management (`2a1d496`)
+- State design pattern (`dd7619d`)
+- Run scripts for backend and frontend services (`d5492c6`)
+- Frontend UI implementation (`364103b`)
+- `README.md` for backend (`fe26582`)
+- Product table & router (`b29ce18`)
+
+### Changed
+- Refactored category: add response models and idempotent default category initialization (`14c0da6`)
+
+### Removed
+- State pattern (`08c78bf`)
+
+---
+
 ## [0.4.0] - 2026-03-05
 
 ### Added
