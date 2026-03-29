@@ -146,13 +146,18 @@ const WishlistDashboard = () => {
              </div>
           ) : (
             products.map((product) => (
-              <div key={product.id} className="flex flex-col rounded-xl overflow-hidden bg-white dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/80 shadow-sm hover:shadow-xl transition-all duration-500 group relative hover:-translate-y-2">
+              <div key={product.id} className={`flex flex-col rounded-xl overflow-hidden bg-white dark:bg-slate-800/80 border shadow-sm hover:shadow-xl transition-all duration-500 group relative hover:-translate-y-2 ${product.purchase_state === 'purchased' ? 'border-green-300 dark:border-green-700/60' : 'border-slate-200 dark:border-slate-700/80'}`}>
+                {/* Status Badge */}
+                <div className={`absolute top-3 left-3 z-10 px-2.5 py-1 rounded-full text-xs font-bold backdrop-blur-sm shadow-sm flex items-center gap-1 ${product.purchase_state === 'purchased' ? 'bg-green-500/90 text-white' : 'bg-amber-400/90 text-amber-900'}`}>
+                  <span className="material-symbols-outlined text-[14px]">{product.purchase_state === 'purchased' ? 'check_circle' : 'schedule'}</span>
+                  {product.purchase_state === 'purchased' ? 'Purchased' : 'Pending'}
+                </div>
                 <button className="absolute top-3 right-3 z-10 p-2 rounded-full bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm text-slate-400 hover:text-red-500 hover:bg-white dark:hover:bg-slate-900 transition-all duration-300 shadow-sm hover:scale-110 active:scale-90">
                   <span className="material-symbols-outlined text-[20px] fill-current">favorite</span>
                 </button>
                 <div 
                   className="w-full h-48 bg-slate-100 dark:bg-slate-900 bg-center bg-no-repeat bg-contain p-4 group-hover:scale-110 transition-transform duration-700" 
-                  style={{backgroundImage: `url("${product.url || 'https://placehold.co/400x400?text=No+Image'}")`}}
+                  style={{backgroundImage: `url("${product.image_url || 'https://placehold.co/400x400?text=No+Image'}")`}}
                 ></div>
                 <div className="flex flex-col flex-1 p-5 gap-4 relative bg-white dark:bg-slate-800/80 z-10">
                   <div>
@@ -163,13 +168,13 @@ const WishlistDashboard = () => {
                     <div className="flex flex-col">
                       <div className="flex items-center gap-2">
                         <span className="text-2xl font-bold text-slate-900 dark:text-white">
-                          {product.current_price ? `$${product.current_price}` : "Pending"}
+                          {product.current_price != null ? `₺${product.current_price.toLocaleString()}` : "NaN"}
                         </span>
                       </div>
-                      {product.target_price && (
+                      {product.target_price != null && (
                         <p className="text-amber-500 text-xs font-semibold flex items-center mt-0.5">
                           <span className="material-symbols-outlined text-[14px] mr-1">flag</span>
-                          Target: ${product.target_price}
+                          Target: ₺{product.target_price.toLocaleString()}
                         </p>
                       )}
                     </div>

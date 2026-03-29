@@ -10,6 +10,8 @@ CREATE TABLE IF NOT EXISTS public.products (
     auto_track BOOLEAN DEFAULT TRUE,
     current_price NUMERIC(10, 2),
     target_price NUMERIC(10, 2),
+    image_url TEXT,
+    purchase_state TEXT DEFAULT 'pending' CHECK (purchase_state IN ('pending', 'purchased')),
     created_at TIMESTAMPTZ DEFAULT now()
 );
 
@@ -17,3 +19,5 @@ CREATE TABLE IF NOT EXISTS public.products (
 CREATE INDEX IF NOT EXISTS idx_products_user_id ON public.products(user_id);
 -- Index for filtering by category
 CREATE INDEX IF NOT EXISTS idx_products_category_id ON public.products(category_id);
+-- Index for filtering by purchase state
+CREATE INDEX IF NOT EXISTS idx_products_purchase_state ON public.products(purchase_state);

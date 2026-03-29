@@ -31,8 +31,18 @@ export const addProduct = async (userId, productData) => {
   return response.data;
 };
 
+export const scrapeAndAddProduct = async (userId, scrapeData) => {
+  const response = await api.post(`/users/${userId}/products/scrape`, scrapeData);
+  return response.data;
+};
+
 export const getUserProducts = async (userId) => {
   const response = await api.get(`/users/${userId}/products`);
+  return response.data;
+};
+
+export const updateProduct = async (productId, updateData) => {
+  const response = await api.put(`/products/${productId}`, updateData);
   return response.data;
 };
 
