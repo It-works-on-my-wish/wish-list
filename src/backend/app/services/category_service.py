@@ -11,10 +11,6 @@ class CategoryService:
         self.repository = repository
 
     def initialize_default_categories(self, user_id: UUID) -> List[Category]:
-        existing_categories = self.repository.find_by_user(user_id)
-        if existing_categories:
-            return existing_categories
-
         created_categories = []
 
         # facade pattern for creating pre-defined categories of a user
