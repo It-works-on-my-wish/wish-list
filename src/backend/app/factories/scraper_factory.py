@@ -3,6 +3,7 @@ from urllib.parse import urlparse
 from app.scrapers.amazon_scraper import AmazonScraper
 from app.scrapers.boyner_scraper import BoynerScraper
 from app.scrapers.hepsiburada_scraper import HepsiburadaScraper
+from app.scrapers.llm_scraper import LLMScraper
 from app.scrapers.mediamarkt_scraper import MediaMarktScraper
 from app.scrapers.scraper_strategy import ScraperStrategy
 from app.scrapers.teknosa_scraper import TeknosaScraper
@@ -65,8 +66,4 @@ class ScraperFactory:
             if keyword in domain:
                 return scraper_class()
 
-        supported = ", ".join(ScraperFactory._DOMAIN_REGISTRY.keys())
-        raise UnsupportedPlatformError(
-            f"No scraper available for domain '{parsed.netloc}'. "
-            f"Supported platforms: {supported}"
-        )
+        return LLMScraper()

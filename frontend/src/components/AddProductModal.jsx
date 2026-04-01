@@ -17,6 +17,7 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded }) => {
   const [categories, setCategories] = useState([]);
   const TEST_USER_ID = "123e4567-e89b-12d3-a456-426614174000";
   const [supportedPlatforms, setSupportedPlatforms] = useState([]);
+  
 
 
   const defaultFormData = {
@@ -58,7 +59,7 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded }) => {
    * Detect if a URL is a supported platform for auto-scraping.
    */
 
-  const isSupportedUrl = (url) => {
+  const isKnownPlatform = (url) => {
     if (!url) return false;
     try {
       const hostname = new URL(url).hostname.toLowerCase();
@@ -67,10 +68,22 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded }) => {
       return false;
     }
   };
-
+  
+  const isValidUrl = (url) => {
+    if (!url) return false;
+    try {
+      new URL(url);
+      return true;
+    } catch {
+      return false;
+    }
+  };
+  
   const urlValue = formData.url?.trim();
-  const isSupported = isSupportedUrl(urlValue);
-  const showManualPrice = urlValue && !isSupported;
+  const isKnown = isKnownPlatform(urlValue);
+  const isValid = isValidUrl(urlValue);
+  const isSupported = isKnown || isValid;
+  const showManualPrice = urlValue && !isValid;
 
   /**
    * Auto-fetch: Uses the Factory + Strategy scraping endpoint.
@@ -81,10 +94,7 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded }) => {
       alert("Please enter a product URL first.");
       return;
     }
-    if (!isSupported) {
-      alert("This URL is not supported for auto-fetch yet.");
-      return;
-    }
+    
 
     setIsScraping(true);
     try {
@@ -117,7 +127,7 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded }) => {
 
   const handleSubmit = async () => {
     // If URL is from a supported platform, use the auto-fetch (scrape) flow
-    if (urlValue && isSupported) {
+    if (urlValue && isValid) {
       handleAutoFetch();
       return;
     }
@@ -208,18 +218,24 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded }) => {
                   placeholder="https://www.hepsiburada.com/product-p-XXXXX"
                 />
               </div>
-              {urlValue && isSupported && (
-                <p className="text-xs text-emerald-500 mt-1.5 flex items-center gap-1">
-                  <span className="material-symbols-outlined text-[14px]">check_circle</span>
-                  Supported platform detected — use Auto-fetch to add instantly
-                </p>
-              )}
-              {urlValue && !isSupported && (
-                <p className="text-xs text-amber-500 mt-1.5 flex items-center gap-1">
-                  <span className="material-symbols-outlined text-[14px]">info</span>
-                  Platform not supported for auto-fetch — enter details manually below
-                </p>
-              )}
+              {urlValue && isKnown && (
+  <p className="text-xs text-emerald-500 mt-1.5 flex items-center gap-1">
+    <span className="material-symbols-outlined text-[14px]">check_circle</span>
+    Supported platform detected — use Auto-fetch to add instantly
+  </p>
+)}
+{urlValue && !isKnown && isValid && (
+  <p className="text-xs text-blue-500 mt-1.5 flex items-center gap-1">
+    <span className="material-symbols-outlined text-[14px]">auto_awesome</span>
+    Unknown platform — will try AI-powered fetch
+  </p>
+)}
+{urlValue && !isValid && (
+  <p className="text-xs text-amber-500 mt-1.5 flex items-center gap-1">
+    <span className="material-symbols-outlined text-[14px]">info</span>
+    Invalid URL — enter details manually below
+  </p>
+)}
             </label>
 
             <label className="flex flex-col flex-1 group">
@@ -242,8 +258,8 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded }) => {
                     Current Price (₺)
                   </p>
                   {isSupported && (
-                    <span className="text-[10px] text-emerald-500 bg-emerald-50 dark:bg-emerald-900/20 px-1.5 py-0.5 rounded font-medium">Auto</span>
-                  )}
+  <span className="text-[10px] text-blue-400 bg-blue-50 dark:bg-blue-900/20 px-1.5 py-0.5 rounded font-medium">Optional</span>
+)}
                 </div>
                 <div className="relative">
                   <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 text-sm font-medium">₺</span>
@@ -254,10 +270,9 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded }) => {
                     min="0"
                     value={formData.current_price}
                     onChange={handleChange}
-                    disabled={isSupported}
+                    disabled={false}
                     className="form-input flex w-full flex-1 rounded-lg text-slate-900 dark:text-white focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#101922] focus:border-primary h-12 placeholder:text-slate-400 dark:placeholder:text-slate-500 pl-8 pr-4 text-base font-normal transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                    placeholder={isSupported ? "Auto-fetched" : "Enter current price"}
-                  />
+                    placeholder={isSupported ? "Auto-fetched (leave empty)" : "Enter current price"}                  />
                 </div>
                 {!isSupported && !formData.current_price && (
                   <p className="text-xs text-slate-400 mt-1">Leave empty if unknown (will show as NaN)</p>
