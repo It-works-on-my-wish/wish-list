@@ -82,7 +82,7 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded }) => {
       return;
     }
     if (!isSupported) {
-      alert("This URL is not supported for auto-fetch yet. Currently only Hepsiburada URLs are supported.");
+      alert("This URL is not supported for auto-fetch yet.");
       return;
     }
 
