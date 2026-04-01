@@ -1,5 +1,6 @@
 from urllib.parse import urlparse
 
+from app.scrapers.amazon_scraper import AmazonScraper
 from app.scrapers.hepsiburada_scraper import HepsiburadaScraper
 from app.scrapers.scraper_strategy import ScraperStrategy
 from app.scrapers.trendyol_scraper import TrendyolScraper
@@ -30,7 +31,7 @@ class ScraperFactory:
     _DOMAIN_REGISTRY: dict[str, type[ScraperStrategy]] = {
         "hepsiburada": HepsiburadaScraper,
         "trendyol": TrendyolScraper,
-        # Future: "amazon": AmazonScraper,
+        "amazon": AmazonScraper,
     }
 
     @staticmethod
