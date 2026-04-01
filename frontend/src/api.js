@@ -51,4 +51,10 @@ export const deleteProduct = async (productId) => {
   return response.data;
 };
 
+export const getSupportedPlatforms = async () => {
+  const response = await api.get('/supported-platforms');
+  return response.data;
+};
+
+
 export default api;

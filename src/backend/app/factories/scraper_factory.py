@@ -1,10 +1,13 @@
 from urllib.parse import urlparse
-from app.scrapers.scraper_strategy import ScraperStrategy
+
 from app.scrapers.hepsiburada_scraper import HepsiburadaScraper
+from app.scrapers.scraper_strategy import ScraperStrategy
+from app.scrapers.trendyol_scraper import TrendyolScraper
 
 
 class UnsupportedPlatformError(Exception):
     """Raised when the URL domain is not supported by any scraper."""
+
     pass
 
 
@@ -26,7 +29,7 @@ class ScraperFactory:
     # To add a new platform, simply register it here.
     _DOMAIN_REGISTRY: dict[str, type[ScraperStrategy]] = {
         "hepsiburada": HepsiburadaScraper,
-        # Future: "trendyol": TrendyolScraper,
+        "trendyol": TrendyolScraper,
         # Future: "amazon": AmazonScraper,
     }
 
@@ -46,7 +49,6 @@ class ScraperFactory:
         """
         parsed = urlparse(url)
         domain = parsed.netloc.lower()
-
         # Remove common prefixes like 'www.'
         if domain.startswith("www."):
             domain = domain[4:]

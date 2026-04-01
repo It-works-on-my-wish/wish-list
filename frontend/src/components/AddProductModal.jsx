@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { addProduct, scrapeAndAddProduct, listUserCategories } from '../api';
+import { addProduct, scrapeAndAddProduct, listUserCategories,getSupportedPlatforms } from '../api';
 
 const AddProductModal = ({ isOpen, onClose, onProductAdded }) => {
   const [formData, setFormData] = useState({
@@ -16,6 +16,8 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded }) => {
   const [isScraping, setIsScraping] = useState(false);
   const [categories, setCategories] = useState([]);
   const TEST_USER_ID = "123e4567-e89b-12d3-a456-426614174000";
+  const [supportedPlatforms, setSupportedPlatforms] = useState([]);
+
 
   const defaultFormData = {
     name: '',
@@ -35,6 +37,12 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded }) => {
         .catch(err => console.error("Failed to load categories", err));
     }
   }, [isOpen]);
+  useEffect(() => {
+    getSupportedPlatforms()
+      .then(data => setSupportedPlatforms(data.platforms))
+      .catch(err => console.error("supported-platforms fetch failed:", err));
+  }, []);
+  
 
   if (!isOpen) return null;
 
@@ -49,11 +57,12 @@ const AddProductModal = ({ isOpen, onClose, onProductAdded }) => {
   /**
    * Detect if a URL is a supported platform for auto-scraping.
    */
+
   const isSupportedUrl = (url) => {
     if (!url) return false;
     try {
       const hostname = new URL(url).hostname.toLowerCase();
-      return hostname.includes('hepsiburada');
+      return supportedPlatforms.some(platform => hostname.includes(platform));
     } catch {
       return false;
     }

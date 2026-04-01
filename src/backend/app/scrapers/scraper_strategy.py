@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from typing import Optional
@@ -12,6 +13,7 @@ class ScrapedProductData:
     Fields like `current_price` and `image_url` are optional because
     not every platform may expose them.
     """
+
     title: str
     source_domain: str
     current_price: Optional[float] = None
@@ -47,4 +49,5 @@ class ScraperStrategy(ABC):
 
 class ScrapingError(Exception):
     """Raised when a scraper strategy fails to extract product data."""
+
     pass

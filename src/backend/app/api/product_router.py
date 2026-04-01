@@ -1,16 +1,23 @@
-from fastapi import APIRouter, HTTPException
-from uuid import UUID
-from app.repositories.product_repository import ProductRepository
-from app.services.product_service import ProductService
-from app.schemas.product_schema import ProductCreate, ProductUpdate, ProductResponse, ProductScrapeRequest
-from app.factories.scraper_factory import UnsupportedPlatformError
-from app.scrapers.scraper_strategy import ScrapingError
 from typing import List
+from uuid import UUID
+
+from app.factories.scraper_factory import ScraperFactory, UnsupportedPlatformError
+from app.repositories.product_repository import ProductRepository
+from app.schemas.product_schema import (
+    ProductCreate,
+    ProductResponse,
+    ProductScrapeRequest,
+    ProductUpdate,
+)
+from app.scrapers.scraper_strategy import ScrapingError
+from app.services.product_service import ProductService
+from fastapi import APIRouter, HTTPException
 
 router = APIRouter()
 
 repository = ProductRepository()
 service = ProductService(repository)
+
 
 @router.post("/users/{user_id}/products", response_model=ProductResponse)
 def add_new_product(user_id: UUID, product: ProductCreate):
@@ -37,7 +44,9 @@ def scrape_and_add_product(user_id: UUID, scrape_request: ProductScrapeRequest):
     try:
         new_prod = service.add_product_from_url(user_id, scrape_request)
         if not new_prod:
-            raise HTTPException(status_code=400, detail="Failed to create product from URL")
+            raise HTTPException(
+                status_code=400, detail="Failed to create product from URL"
+            )
         return new_prod
     except UnsupportedPlatformError as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -55,17 +64,19 @@ def get_user_products(user_id: UUID):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+
 @router.put("/products/{product_id}", response_model=ProductResponse)
 def update_product_info(product_id: UUID, product: ProductUpdate):
     try:
         updated = service.update_product_details(product_id, product)
         if not updated:
-             raise HTTPException(status_code=404, detail="Product not found")
+            raise HTTPException(status_code=404, detail="Product not found")
         return updated
     except HTTPException:
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
 
 @router.delete("/products/{product_id}")
 def remove_product_endpoint(product_id: UUID):
@@ -74,3 +85,9 @@ def remove_product_endpoint(product_id: UUID):
         return {"detail": "Product deleted successfully"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+# api endpoint to get supported platforms
+@router.get("/supported-platforms")
+def get_supported_platforms():
+    return {"platforms": list(ScraperFactory._DOMAIN_REGISTRY.keys())}

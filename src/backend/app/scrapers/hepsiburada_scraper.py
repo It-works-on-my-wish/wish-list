@@ -1,7 +1,12 @@
 import json
-from curl_cffi import requests as curl_requests
+
+from app.scrapers.scraper_strategy import (
+    ScrapedProductData,
+    ScraperStrategy,
+    ScrapingError,
+)
 from bs4 import BeautifulSoup
-from app.scrapers.scraper_strategy import ScraperStrategy, ScrapedProductData, ScrapingError
+from curl_cffi import requests as curl_requests
 
 
 class HepsiburadaScraper(ScraperStrategy):
