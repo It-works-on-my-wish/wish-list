@@ -48,7 +48,6 @@ class TeknosaScraper(ScraperStrategy):
 
     @staticmethod
     def _extract_price(soup: BeautifulSoup) -> float | None:
-        # önce hidden input (daha temiz veri)
         price_tag = soup.select_one("#visiblePi")
 
         if price_tag:
