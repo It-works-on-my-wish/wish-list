@@ -3,6 +3,7 @@ from urllib.parse import urlparse
 from app.scrapers.amazon_scraper import AmazonScraper
 from app.scrapers.boyner_scraper import BoynerScraper
 from app.scrapers.hepsiburada_scraper import HepsiburadaScraper
+from app.scrapers.mediamarkt_scraper import MediaMarktScraper
 from app.scrapers.scraper_strategy import ScraperStrategy
 from app.scrapers.trendyol_scraper import TrendyolScraper
 
@@ -34,6 +35,7 @@ class ScraperFactory:
         "trendyol": TrendyolScraper,
         "amazon": AmazonScraper,
         "boyner": BoynerScraper,
+        "mediamarkt": MediaMarktScraper,
     }
 
     @staticmethod
