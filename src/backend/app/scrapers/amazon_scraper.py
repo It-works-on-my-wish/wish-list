@@ -40,13 +40,11 @@ class AmazonScraper(ScraperStrategy):
     def _extract_price(soup: BeautifulSoup) -> float | None:
         price_tag = soup.select_one("span.a-price-whole")
         if price_tag:
-            try:
-                price_str = price_tag.text.strip()
-                price_str = price_str.replace(",", ".")
-                return float(price_str)
-            except (ValueError, TypeError):
-                return None
-        return None
+            for span in price_tag.find_all("span"):
+                span.decompose()
+            price_str = price_tag.text.strip()
+            price_str = price_str.replace(".", "")
+            return float(price_str)
 
     @staticmethod
     def _extract_title(soup: BeautifulSoup) -> str | None:

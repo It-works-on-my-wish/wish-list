@@ -42,7 +42,9 @@ class TrendyolScraper(ScraperStrategy):
         if price_tag:
             try:
                 price_str = price_tag.text.strip()
-                price_str = price_str.replace(",", ".")
+                price_str = (
+                    price_str.replace(" TL", "").replace(".", "").replace(",", ".")
+                )
                 return float(price_str)
             except (ValueError, TypeError):
                 return None
