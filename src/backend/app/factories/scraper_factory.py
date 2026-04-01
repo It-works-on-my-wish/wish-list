@@ -5,6 +5,7 @@ from app.scrapers.boyner_scraper import BoynerScraper
 from app.scrapers.hepsiburada_scraper import HepsiburadaScraper
 from app.scrapers.mediamarkt_scraper import MediaMarktScraper
 from app.scrapers.scraper_strategy import ScraperStrategy
+from app.scrapers.teknosa_scraper import TeknosaScraper
 from app.scrapers.trendyol_scraper import TrendyolScraper
 
 
@@ -36,6 +37,7 @@ class ScraperFactory:
         "amazon": AmazonScraper,
         "boyner": BoynerScraper,
         "mediamarkt": MediaMarktScraper,
+        "teknosa": TeknosaScraper,
     }
 
     @staticmethod
