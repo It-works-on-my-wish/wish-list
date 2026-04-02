@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import AddProductModal from './AddProductModal';
 import ProductDetailModal from './ProductDetailModal';
-import { getUserProducts } from '../api';
+import { getUserProducts, listUserCategories } from '../api';
 
 const WishlistDashboard = () => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -9,6 +9,11 @@ const WishlistDashboard = () => {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [categories, setCategories] = useState([]);
+const [selectedCategory, setSelectedCategory] = useState(null);
+const filteredProducts = selectedCategory
+  ? products.filter(p => p.category_id === selectedCategory)
+  : products;
 
   const TEST_USER_ID = "123e4567-e89b-12d3-a456-426614174000";
 
@@ -26,6 +31,22 @@ const WishlistDashboard = () => {
 
   useEffect(() => {
     fetchProducts();
+  }, []);
+
+  useEffect(() => {
+    listUserCategories(TEST_USER_ID)
+      .then(data => setCategories(data || []))
+      .catch(err => console.error("Failed to load categories", err));
+  }, []);
+
+  useEffect(() => {
+    console.log("Fetching categories...");
+    listUserCategories(TEST_USER_ID)
+      .then(data => {
+        console.log("Categories:", data);
+        setCategories(data || []);
+      })
+      .catch(err => console.error("Failed to load categories", err));
   }, []);
 
   const handleOpenDetail = (product) => {
@@ -113,14 +134,30 @@ const WishlistDashboard = () => {
 
         {/* Filters */}
         <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide -mx-4 px-4 sm:mx-0 sm:px-0">
-          <button className="flex h-9 shrink-0 items-center justify-center rounded-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-5 transition-all duration-300 hover:opacity-90 active:scale-95">
-            <p className="text-sm font-bold">All Items</p>
-          </button>
-          {['Electronics', 'Fashion', 'Home', 'Books'].map(cat => (
-            <button key={cat} className="flex h-9 shrink-0 items-center justify-center rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-primary/10 hover:text-primary hover:border-primary/30 transition-all duration-300 px-5 active:scale-95">
-              <p className="text-sm font-semibold">{cat}</p>
-            </button>
-          ))}
+        <button
+  onClick={() => setSelectedCategory(null)}
+  className={`flex h-9 shrink-0 items-center justify-center rounded-full px-5 transition-all duration-300 active:scale-95 text-sm font-bold
+    ${selectedCategory === null
+      ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900'
+      : 'bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:opacity-90'
+    }`}
+>
+  All Items
+</button>
+          
+{categories.map(cat => (
+  <button
+    key={cat.id}
+    onClick={() => setSelectedCategory(cat.id)}
+    className={`flex h-9 shrink-0 items-center justify-center rounded-full border transition-all duration-300 px-5 active:scale-95 text-sm font-semibold
+      ${selectedCategory === cat.id
+        ? 'bg-primary text-white border-primary'
+        : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-primary/10 hover:text-primary hover:border-primary/30'
+      }`}
+  >
+    {cat.name}
+  </button>
+))}
           <button 
             onClick={() => setIsAddModalOpen(true)}
             className="flex h-9 shrink-0 items-center justify-center rounded-full bg-primary text-white hover:bg-primary/90 transition-all duration-300 px-4 gap-1 shadow-sm hover:shadow-primary/30 active:scale-95"
@@ -145,7 +182,7 @@ const WishlistDashboard = () => {
                 <p>No items tracked yet. Add your first item!</p>
              </div>
           ) : (
-            products.map((product) => (
+            filteredProducts.map((product) => (
               <div key={product.id} className={`flex flex-col rounded-xl overflow-hidden bg-white dark:bg-slate-800/80 border shadow-sm hover:shadow-xl transition-all duration-500 group relative hover:-translate-y-2 ${product.purchase_state === 'purchased' ? 'border-green-300 dark:border-green-700/60' : 'border-slate-200 dark:border-slate-700/80'}`}>
                 {/* Status Badge */}
                 <div className={`absolute top-3 left-3 z-10 px-2.5 py-1 rounded-full text-xs font-bold backdrop-blur-sm shadow-sm flex items-center gap-1 ${product.purchase_state === 'purchased' ? 'bg-green-500/90 text-white' : 'bg-amber-400/90 text-amber-900'}`}>
