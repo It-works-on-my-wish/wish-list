@@ -204,8 +204,13 @@ const filteredProducts = selectedCategory
                 ></div>
                 <div className="flex flex-col flex-1 p-5 gap-4 relative bg-white dark:bg-slate-800/80 z-10">
                   <div>
-                    <h3 className="text-slate-900 dark:text-white text-lg font-bold leading-tight line-clamp-1 mb-1 group-hover:text-primary transition-colors">{product.name}</h3>
-                    <p className="text-slate-500 dark:text-slate-400 text-sm capitalize">{product.priority} Priority</p>
+                  <h3 className="text-slate-900 dark:text-white text-lg font-bold leading-tight line-clamp-1 mb-1 group-hover:text-primary transition-colors">
+  {product.url ? (
+    <a href={product.url} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()}>
+      {product.name}
+    </a>
+  ) : product.name}
+</h3>                    <p className="text-slate-500 dark:text-slate-400 text-sm capitalize">{product.priority} Priority</p>
                   </div>
                   <div className="flex items-center justify-between">
                     <div className="flex flex-col">
