@@ -60,6 +60,9 @@ export const getProductPriceHistory = async (productId) => {
   const response = await api.get(`/products/${productId}/price-history`);
   return response.data;
 };
-
+export const getUserStats = async (userId) => {
+  const response = await api.get(`/users/${userId}/stats`);
+  return response.data;
+};
 
 export default api;

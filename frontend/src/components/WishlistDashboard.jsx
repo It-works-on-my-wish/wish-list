@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import AddProductModal from './AddProductModal';
 import ProductDetailModal from './ProductDetailModal';
-import { getUserProducts, listUserCategories } from '../api';
+import { getUserProducts, listUserCategories, getUserStats} from '../api';
 
 const WishlistDashboard = () => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -16,6 +16,7 @@ const filteredProducts = selectedCategory
   : products;
 
   const TEST_USER_ID = "123e4567-e89b-12d3-a456-426614174000";
+  const [stats, setStats] = useState({ tracked: 0, purchased: 0, total_savings: 0, price_drops_today: 0 });
 
   const fetchProducts = async () => {
     try {
@@ -28,6 +29,12 @@ const filteredProducts = selectedCategory
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    getUserStats(TEST_USER_ID)
+      .then(data => setStats(data))
+      .catch(err => console.error("Failed to load stats", err));
+  }, []);
 
   useEffect(() => {
     fetchProducts();
@@ -65,7 +72,7 @@ const filteredProducts = selectedCategory
               <span className="material-symbols-outlined text-[20px]">list_alt</span>
             </div>
           </div>
-          <p className="text-slate-900 dark:text-white text-3xl font-bold leading-tight">142</p>
+          <p className="text-slate-900 dark:text-white text-3xl font-bold leading-tight">{stats.tracked}</p>
           <div className="flex items-center gap-1.5 mt-1">
             <span className="material-symbols-outlined text-green-500 text-[16px]">trending_up</span>
             <p className="text-green-500 text-sm font-semibold">+5% <span className="text-slate-400 dark:text-slate-500 font-medium">this month</span></p>
@@ -80,7 +87,7 @@ const filteredProducts = selectedCategory
               <span className="material-symbols-outlined text-[20px]">savings</span>
             </div>
           </div>
-          <p className="text-slate-900 dark:text-white text-3xl font-bold leading-tight">$340.50</p>
+          <p className="text-slate-900 dark:text-white text-3xl font-bold leading-tight">₺{stats.total_savings.toLocaleString()}</p>
           <div className="flex items-center gap-1.5 mt-1">
             <span className="material-symbols-outlined text-green-500 text-[16px]">trending_up</span>
             <p className="text-green-500 text-sm font-semibold">+$45.20 <span className="text-slate-400 dark:text-slate-500 font-medium">this month</span></p>
@@ -95,7 +102,7 @@ const filteredProducts = selectedCategory
               <span className="material-symbols-outlined text-[20px]">sell</span>
             </div>
           </div>
-          <p className="text-slate-900 dark:text-white text-3xl font-bold leading-tight">12</p>
+          <p className="text-slate-900 dark:text-white text-3xl font-bold leading-tight">{stats.price_drops_today}</p>
           <div className="flex items-center gap-1.5 mt-1">
             <span className="material-symbols-outlined text-amber-500 text-[16px] animate-pulse">local_fire_department</span>
             <p className="text-amber-500 text-sm font-semibold">Hot deals waiting!</p>
@@ -110,8 +117,7 @@ const filteredProducts = selectedCategory
               <span className="material-symbols-outlined text-[20px]">shopping_cart_checkout</span>
             </div>
           </div>
-          <p className="text-slate-900 dark:text-white text-3xl font-bold leading-tight">45</p>
-          <div className="flex items-center gap-1.5 mt-1">
+          <p className="text-slate-900 dark:text-white text-3xl font-bold leading-tight">{stats.purchased}</p>          <div className="flex items-center gap-1.5 mt-1">
             <span className="material-symbols-outlined text-slate-400 dark:text-slate-500 text-[16px]">check_circle</span>
             <p className="text-slate-400 dark:text-slate-500 text-sm font-semibold">Total lifetime</p>
           </div>
