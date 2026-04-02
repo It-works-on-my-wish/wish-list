@@ -1,6 +1,7 @@
 from typing import List
 from uuid import UUID
 
+from app.database.supabase_client import supabase
 from app.factories.scraper_factory import ScraperFactory, UnsupportedPlatformError
 from app.repositories.product_repository import ProductRepository
 from app.schemas.product_schema import (
@@ -91,3 +92,15 @@ def remove_product_endpoint(product_id: UUID):
 @router.get("/supported-platforms")
 def get_supported_platforms():
     return {"platforms": list(ScraperFactory._DOMAIN_REGISTRY.keys())}
+
+
+@router.get("/products/{product_id}/price-history")
+def get_price_history(product_id: UUID):
+    result = (
+        supabase.table("price_history")
+        .select("*")
+        .eq("product_id", str(product_id))
+        .order("checked_at")
+        .execute()
+    )
+    return result.data

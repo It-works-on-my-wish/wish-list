@@ -56,5 +56,10 @@ export const getSupportedPlatforms = async () => {
   return response.data;
 };
 
+export const getProductPriceHistory = async (productId) => {
+  const response = await api.get(`/products/${productId}/price-history`);
+  return response.data;
+};
+
 
 export default api;

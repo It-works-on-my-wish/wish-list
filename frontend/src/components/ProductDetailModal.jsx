@@ -1,9 +1,17 @@
-import React, { useState } from 'react';
-import { deleteProduct, updateProduct } from '../api';
+import React, { useState, useEffect} from 'react';
+import { deleteProduct, updateProduct,getProductPriceHistory } from '../api';
 
 const ProductDetailModal = ({ isOpen, onClose, product, onProductDeleted }) => {
   const [isDeleting, setIsDeleting] = useState(false);
   const [isPurchasing, setIsPurchasing] = useState(false);
+  const [priceHistory, setPriceHistory] = useState([]);
+  useEffect(() => {
+    if (isOpen && product) {
+      getProductPriceHistory(product.id)
+        .then(data => setPriceHistory(data || []))
+        .catch(err => console.error("Failed to load price history", err));
+    }
+  }, [isOpen, product]);
 
   if (!isOpen || !product) return null;
 
@@ -52,6 +60,8 @@ const ProductDetailModal = ({ isOpen, onClose, product, onProductDeleted }) => {
       setIsPurchasing(false);
     }
   };
+
+ 
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -133,13 +143,55 @@ const ProductDetailModal = ({ isOpen, onClose, product, onProductDeleted }) => {
 
                 {/* Chart Area */}
                 <div className="flex flex-col flex-1 min-h-[240px] relative">
+                {priceHistory.length < 2 ? (
+  <div className="absolute inset-0 flex items-center justify-center text-slate-400 text-sm">
+    Not enough data yet
+  </div>
+) : (
+  <>
+    <svg className="absolute inset-0 h-full w-full" preserveAspectRatio="none" viewBox="0 0 100 100">
+      {(() => {
+        const prices = priceHistory.map(h => h.price);
+        const min = Math.min(...prices);
+        const max = Math.max(...prices);
+        const range = max - min || 1;
+        const points = prices.map((p, i) => {
+          const x = (i / (prices.length - 1)) * 100;
+          const y = 100 - ((p - min) / range) * 80 - 10;
+          return `${x},${y}`;
+        });
+        const pathD = `M${points.join(' L')}`;
+        const fillD = `M${points[0]} L${points.join(' L')} L100,100 L0,100 Z`;
+        return (
+          <>
+            <path d={fillD} fill="url(#chart-gradient)" opacity="0.2" />
+            <path d={pathD} fill="none" stroke="currentColor" className="text-primary" strokeWidth="2" strokeLinejoin="round" />
+            <defs>
+              <linearGradient id="chart-gradient" x1="0" x2="0" y1="0" y2="1">
+                <stop className="text-primary" offset="0%" stopColor="currentColor" stopOpacity="1" />
+                <stop className="text-primary" offset="100%" stopColor="currentColor" stopOpacity="0" />
+              </linearGradient>
+            </defs>
+          </>
+        );
+      })()}
+    </svg>
+  </>
+)}
                   {/* Y-Axis Labels */}
                   <div className="absolute left-0 top-0 bottom-8 w-12 flex flex-col justify-between text-xs text-slate-400">
-                    <span>₺400</span>
-                    <span>₺350</span>
-                    <span>₺300</span>
-                    <span>₺250</span>
-                  </div>
+  {priceHistory.length >= 1 ? (
+    <>
+      <span>₺{Math.max(...priceHistory.map(h => h.price)).toLocaleString()}</span>
+      <span>₺{Math.min(...priceHistory.map(h => h.price)).toLocaleString()}</span>
+    </>
+  ) : (
+    <>
+      <span>—</span>
+      <span>—</span>
+    </>
+  )}
+</div>
                   {/* Chart Lines */}
                   <div className="absolute left-12 right-0 top-0 bottom-8 border-l border-b border-slate-200 dark:border-slate-700">
                     <div className="absolute inset-0 flex flex-col justify-between">
@@ -151,26 +203,16 @@ const ProductDetailModal = ({ isOpen, onClose, product, onProductDeleted }) => {
                     <div className="absolute w-full border-t-2 border-green-500/50 flex" style={{ top: '50%' }}>
                       <span className="absolute right-2 -top-5 text-xs text-green-600 dark:text-green-400 font-medium">Target: {product.target_price != null ? `₺${product.target_price.toLocaleString()}` : 'N/A'}</span>
                     </div>
-                    <svg className="absolute inset-0 h-full w-full" preserveAspectRatio="none" viewBox="0 0 100 100">
-                      {/* Gradient Fill */}
-                      <path d="M0,80 L20,75 L40,85 L60,40 L80,50 L100,20 L100,100 L0,100 Z" fill="url(#chart-gradient)" opacity="0.2"></path>
-                      {/* Line */}
-                      <path className="text-primary" d="M0,80 L20,75 L40,85 L60,40 L80,50 L100,20" fill="none" stroke="currentColor" strokeLinejoin="round" strokeWidth="2"></path>
-                      <defs>
-                        <linearGradient id="chart-gradient" x1="0" x2="0" y1="0" y2="1">
-                          <stop className="text-primary" offset="0%" stopColor="currentColor" stopOpacity="1"></stop>
-                          <stop className="text-primary" offset="100%" stopColor="currentColor" stopOpacity="0"></stop>
-                        </linearGradient>
-                      </defs>
-                    </svg>
                   </div>
                   {/* X-Axis Labels */}
                   <div className="absolute left-12 right-0 bottom-0 h-8 flex justify-between items-end text-xs text-slate-400 px-2">
-                    <span>Oct</span>
-                    <span>Nov</span>
-                    <span>Dec</span>
-                    <span>Jan</span>
-                  </div>
+  {priceHistory.length >= 2 && (
+    <>
+      <span>{new Date(priceHistory[0].checked_at).toLocaleDateString('tr-TR', {month: 'short', day: 'numeric'})}</span>
+      <span>{new Date(priceHistory[priceHistory.length-1].checked_at).toLocaleDateString('tr-TR', {month: 'short', day: 'numeric'})}</span>
+    </>
+  )}
+</div>
                 </div>
               </div>
             </div>
