@@ -4,3 +4,11 @@ __pycache__/
 .env
 Icon
 env
+.vscode
+
+# Python venv
+venv/
+src/backend/venv/
+
+# diagrams (optional)
+*.drawio

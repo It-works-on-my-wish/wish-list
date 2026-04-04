@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import AddProductModal from './AddProductModal';
+import AddCategoryModal from './AddCategoryModal';
 import ProductDetailModal from './ProductDetailModal';
 import { getUserProducts, listUserCategories, getUserStats} from '../api';
 
 const WishlistDashboard = () => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isAddCategoryModalOpen, setIsAddCategoryModalOpen] = useState(false); // is add new category page opened 
+
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [products, setProducts] = useState([]);
@@ -30,6 +33,15 @@ const filteredProducts = selectedCategory
     }
   };
 
+  const fetchCategories = async () => {
+    try {
+      const data = await listUserCategories(TEST_USER_ID);
+      setCategories(data || []);
+    } catch (err) {
+      console.error("Failed to load categories", err);
+    }
+  };
+
   useEffect(() => {
     getUserStats(TEST_USER_ID)
       .then(data => setStats(data))
@@ -40,12 +52,7 @@ const filteredProducts = selectedCategory
     fetchProducts();
   }, []);
 
-  useEffect(() => {
-    listUserCategories(TEST_USER_ID)
-      .then(data => setCategories(data || []))
-      .catch(err => console.error("Failed to load categories", err));
-  }, []);
-
+  /*
   useEffect(() => {
     console.log("Fetching categories...");
     listUserCategories(TEST_USER_ID)
@@ -54,6 +61,12 @@ const filteredProducts = selectedCategory
         setCategories(data || []);
       })
       .catch(err => console.error("Failed to load categories", err));
+  }, []);
+  */
+
+  // run on page load
+  useEffect(() => {
+    fetchCategories();
   }, []);
 
   const handleOpenDetail = (product) => {
@@ -171,6 +184,15 @@ const filteredProducts = selectedCategory
             <span className="material-symbols-outlined text-[18px]">add</span>
             <p className="text-sm font-semibold">New Item</p>
           </button>
+
+          <button
+            onClick={() => setIsAddCategoryModalOpen(true)}
+            className="flex h-9 shrink-0 items-center justify-center rounded-full bg-primary text-white hover:bg-primary/90 transition-all duration-300 px-4 gap-1 shadow-sm hover:shadow-primary/30 active:scale-95"
+          >
+            <span className="material-symbols-outlined text-[18px]">add</span>
+            <p className="text-sm font-semibold">New Category</p>
+          </button>
+
           <button className="flex h-9 shrink-0 items-center justify-center rounded-full border border-dashed border-slate-300 dark:border-slate-600 text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all duration-300 px-4 gap-1 active:scale-95 hover:border-solid hover:border-slate-400">
             <span className="material-symbols-outlined text-[18px]">filter_list</span>
             <p className="text-sm font-semibold">Filter</p>
@@ -246,6 +268,13 @@ const filteredProducts = selectedCategory
         onClose={() => setIsAddModalOpen(false)} 
         onProductAdded={fetchProducts}
       />
+
+      <AddCategoryModal
+        isOpen={isAddCategoryModalOpen}
+        onClose={() => setIsAddCategoryModalOpen(false)}
+        onCategoryAdded={fetchCategories}
+      />
+
       <ProductDetailModal 
         isOpen={isDetailModalOpen} 
         onClose={() => setIsDetailModalOpen(false)}
