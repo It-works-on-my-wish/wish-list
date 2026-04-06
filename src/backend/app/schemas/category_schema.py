@@ -12,4 +12,4 @@ class Category(BaseModel):
 
 class CategoryCustom(BaseModel):
     name:str
-    category_type: str
+    category_type: str = "CUSTOM"

@@ -7,7 +7,7 @@ CREATE TABLE categories (
     category_type text not null,
     created_at TIMESTAMP DEFAULT NOW(),
 
-    unique (user_id, category_type),
+    unique (user_id, name),
 
     -- if the user is deleted, the category also gets deleted (cascade)
     CONSTRAINT fk_user
