@@ -127,12 +127,15 @@ class TestAddNewCategoryEndpoint:
         )
         assert response.status_code == 422
 
-    def test_missing_category_type_returns_422(self):
-        response = client.post(
-            f"/users/{TEST_USER_ID}/add-new-category",
-            json={"name": "Books"},
-        )
-        assert response.status_code == 422
+    def test_category_type_defaults_to_custom_when_omitted(self):
+        # category_type has default "CUSTOM", so omitting it should not cause 422
+        new_cat = make_category("Books", "CUSTOM")
+        with patch("app.api.category_router.service.create_new_category", return_value=new_cat):
+            response = client.post(
+                f"/users/{TEST_USER_ID}/add-new-category",
+                json={"name": "Books"},
+            )
+        assert response.status_code == 200
 
     def test_empty_body_returns_422(self):
         response = client.post(f"/users/{TEST_USER_ID}/add-new-category", json={})
