@@ -10,6 +10,8 @@ function App() {
   // Using a dummy UUID for the backend testing since auth isn't built yet
   const TEST_USER_ID = "123e4567-e89b-12d3-a456-426614174000";
 
+  const [searchQuery, setSearchQuery] = useState("");
+
   useEffect(() => {
     const fetchCategories = async () => {
       try {
@@ -26,8 +28,8 @@ function App() {
   }, []);
 
   return (
-    <Layout>
-      <WishlistDashboard />
+    <Layout searchQuery={searchQuery} setSearchQuery={setSearchQuery}>
+      <WishlistDashboard searchQuery={searchQuery} />
     </Layout>
   );
 }
