@@ -1,4 +1,5 @@
 import React from 'react';
+import NotificationBell from './NotificationBell';
 
 const Layout = ({ children }) => {
   return (
@@ -33,10 +34,7 @@ const Layout = ({ children }) => {
           </nav>
           
           <div className="flex items-center gap-4">
-            <button className="text-slate-500 hover:text-slate-900 dark:hover:text-white transition-colors duration-300 rounded-full p-2 hover:bg-slate-100 dark:hover:bg-slate-800 relative hover:scale-110 active:scale-95">
-              <span className="material-symbols-outlined">notifications</span>
-              <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-background-light dark:border-background-dark animate-pulse"></span>
-            </button>
+            <NotificationBell />
             <div 
               className="bg-center bg-no-repeat aspect-square bg-cover rounded-full h-9 w-9 border border-slate-200 dark:border-slate-700 cursor-pointer hover:ring-2 hover:ring-primary/50 transition-all duration-300 shadow-sm hover:shadow-md" 
               style={{ backgroundImage: 'url("https://ui-avatars.com/api/?name=User&background=137fec&color=fff")' }}
