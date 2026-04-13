@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import AddProductModal from './AddProductModal';
 import AddCategoryModal from './AddCategoryModal';
 import ProductDetailModal from './ProductDetailModal';
-import { getUserProducts, listUserCategories, getUserStats} from '../api';
+import { getUserProducts, listUserCategories, getUserStats } from '../api';
 
 const WishlistDashboard = () => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -13,10 +13,10 @@ const WishlistDashboard = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [categories, setCategories] = useState([]);
-const [selectedCategory, setSelectedCategory] = useState(null);
-const filteredProducts = selectedCategory
-  ? products.filter(p => p.category_id === selectedCategory)
-  : products;
+  const [selectedCategory, setSelectedCategory] = useState(null);
+  const filteredProducts = selectedCategory
+    ? products.filter(p => p.category_id === selectedCategory)
+    : products;
 
   const TEST_USER_ID = "123e4567-e89b-12d3-a456-426614174000";
   const [stats, setStats] = useState({ tracked: 0, purchased: 0, total_savings: 0, price_drops_today: 0 });
@@ -88,7 +88,7 @@ const filteredProducts = selectedCategory
           <p className="text-slate-900 dark:text-white text-3xl font-bold leading-tight">{stats.tracked}</p>
           <div className="flex items-center gap-1.5 mt-1">
             <span className="material-symbols-outlined text-green-500 text-[16px]">trending_up</span>
-            <p className="text-green-500 text-sm font-semibold">+5% <span className="text-slate-400 dark:text-slate-500 font-medium">this month</span></p>
+            <p className="text-green-500 text-sm font-semibold">0% <span className="text-slate-400 dark:text-slate-500 font-medium">this month</span></p>
           </div>
         </div>
 
@@ -103,7 +103,7 @@ const filteredProducts = selectedCategory
           <p className="text-slate-900 dark:text-white text-3xl font-bold leading-tight">₺{stats.total_savings.toLocaleString()}</p>
           <div className="flex items-center gap-1.5 mt-1">
             <span className="material-symbols-outlined text-green-500 text-[16px]">trending_up</span>
-            <p className="text-green-500 text-sm font-semibold">+$45.20 <span className="text-slate-400 dark:text-slate-500 font-medium">this month</span></p>
+            <p className="text-green-500 text-sm font-semibold">+$0.00 <span className="text-slate-400 dark:text-slate-500 font-medium">this month</span></p>
           </div>
         </div>
 
@@ -151,64 +151,71 @@ const filteredProducts = selectedCategory
           </div>
         </div>
 
-        {/* Filters */}
-        <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide -mx-4 px-4 sm:mx-0 sm:px-0">
-        <button
-  onClick={() => setSelectedCategory(null)}
-  className={`flex h-9 shrink-0 items-center justify-center rounded-full px-5 transition-all duration-300 active:scale-95 text-sm font-bold
-    ${selectedCategory === null
-      ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900'
-      : 'bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:opacity-90'
-    }`}
->
-  All Items
-</button>
-          
-{categories.map(cat => (
-  <button
-    key={cat.id}
-    onClick={() => setSelectedCategory(cat.id)}
-    className={`flex h-9 shrink-0 items-center justify-center rounded-full border transition-all duration-300 px-5 active:scale-95 text-sm font-semibold
-      ${selectedCategory === cat.id
-        ? 'bg-primary text-white border-primary'
-        : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-primary/10 hover:text-primary hover:border-primary/30'
-      }`}
-  >
-    {cat.name}
-  </button>
-))}
-          <button 
-            onClick={() => setIsAddModalOpen(true)}
-            className="flex h-9 shrink-0 items-center justify-center rounded-full bg-primary text-white hover:bg-primary/90 transition-all duration-300 px-4 gap-1 shadow-sm hover:shadow-primary/30 active:scale-95"
-          >
-            <span className="material-symbols-outlined text-[18px]">add</span>
-            <p className="text-sm font-semibold">New Item</p>
-          </button>
+        {/* Filters and Actions */}
+        <div className="flex flex-col xl:flex-row w-full justify-between items-start xl:items-center gap-4 relative">
+          {/* Scrollable Categories Array */}
+          <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide flex-1 w-full max-w-full -mx-4 px-4 sm:mx-0 sm:px-0 lg:max-w-[70%]">
+            <button
+              onClick={() => setSelectedCategory(null)}
+              className={`flex h-9 shrink-0 items-center justify-center rounded-full px-5 transition-all duration-300 active:scale-95 text-sm font-bold
+      ${selectedCategory === null
+                  ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900'
+                  : 'bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:opacity-90'
+                }`}
+            >
+              All Items
+            </button>
 
-          <button
-            onClick={() => setIsAddCategoryModalOpen(true)}
-            className="flex h-9 shrink-0 items-center justify-center rounded-full bg-primary text-white hover:bg-primary/90 transition-all duration-300 px-4 gap-1 shadow-sm hover:shadow-primary/30 active:scale-95"
-          >
-            <span className="material-symbols-outlined text-[18px]">add</span>
-            <p className="text-sm font-semibold">New Category</p>
-          </button>
+            {categories.map(cat => (
+              <button
+                key={cat.id}
+                onClick={() => setSelectedCategory(cat.id)}
+                className={`flex h-9 shrink-0 items-center justify-center rounded-full border transition-all duration-300 px-5 active:scale-95 text-sm font-semibold
+        ${selectedCategory === cat.id
+                    ? 'bg-primary text-white border-primary'
+                    : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-primary/10 hover:text-primary hover:border-primary/30'
+                  }`}
+              >
+                {cat.name}
+              </button>
+            ))}
+          </div>
 
-          <button className="flex h-9 shrink-0 items-center justify-center rounded-full border border-dashed border-slate-300 dark:border-slate-600 text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all duration-300 px-4 gap-1 active:scale-95 hover:border-solid hover:border-slate-400">
-            <span className="material-symbols-outlined text-[18px]">filter_list</span>
-            <p className="text-sm font-semibold">Filter</p>
-          </button>
+          {/* Fixed Actions to the Right */}
+          <div className="flex gap-2 shrink-0 pb-2 overflow-x-auto w-full xl:w-auto -mx-4 px-4 sm:mx-0 sm:px-0">
+            <button
+              onClick={() => setIsAddModalOpen(true)}
+              className="flex h-9 shrink-0 items-center justify-center rounded-full bg-primary text-white hover:bg-primary/90 transition-all duration-300 px-4 gap-1 shadow-sm hover:shadow-primary/30 active:scale-95"
+            >
+              <span className="material-symbols-outlined text-[18px]">add</span>
+              <p className="text-sm font-semibold">New Item</p>
+            </button>
+
+            <button
+              onClick={() => setIsAddCategoryModalOpen(true)}
+              className="flex h-9 shrink-0 items-center justify-center rounded-full bg-primary text-white hover:bg-primary/90 transition-all duration-300 px-4 gap-1 shadow-sm hover:shadow-primary/30 active:scale-95"
+            >
+              <span className="material-symbols-outlined text-[18px]">add</span>
+              <p className="text-sm font-semibold">New Category</p>
+            </button>
+
+            <button className="flex h-9 shrink-0 items-center justify-center rounded-full border border-dashed border-slate-300 dark:border-slate-600 text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all duration-300 px-4 gap-1 active:scale-95 hover:border-solid hover:border-slate-400">
+              <span className="material-symbols-outlined text-[18px]">filter_list</span>
+              <p className="text-sm font-semibold">Filter</p>
+            </button>
+          </div>
         </div>
 
         {/* Items Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-2">
-          
+
           {loading ? (
-             <div className="col-span-full py-12 flex justify-center text-slate-500">Loading products...</div>
+            <div className="col-span-full py-12 flex justify-center text-slate-500">Loading products...</div>
           ) : products.length === 0 ? (
-             <div className="col-span-full py-12 flex flex-col items-center justify-center text-slate-500 gap-4">
-                <span className="material-symbols-outlined text-4xl opacity-50">inventory_2</span>
-                <p>No items tracked yet. Add your first item!</p>
-             </div>
+            <div className="col-span-full py-12 flex flex-col items-center justify-center text-slate-500 gap-4">
+              <span className="material-symbols-outlined text-4xl opacity-50">inventory_2</span>
+              <p>No items tracked yet. Add your first item!</p>
+            </div>
           ) : (
             filteredProducts.map((product) => (
               <div key={product.id} className={`flex flex-col rounded-xl overflow-hidden bg-white dark:bg-slate-800/80 border shadow-sm hover:shadow-xl transition-all duration-500 group relative hover:-translate-y-2 ${product.purchase_state === 'purchased' ? 'border-green-300 dark:border-green-700/60' : 'border-slate-200 dark:border-slate-700/80'}`}>
@@ -220,19 +227,19 @@ const filteredProducts = selectedCategory
                 <button className="absolute top-3 right-3 z-10 p-2 rounded-full bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm text-slate-400 hover:text-red-500 hover:bg-white dark:hover:bg-slate-900 transition-all duration-300 shadow-sm hover:scale-110 active:scale-90">
                   <span className="material-symbols-outlined text-[20px] fill-current">favorite</span>
                 </button>
-                <div 
-                  className="w-full h-48 bg-slate-100 dark:bg-slate-900 bg-center bg-no-repeat bg-contain p-4 group-hover:scale-110 transition-transform duration-700" 
-                  style={{backgroundImage: `url("${product.image_url || 'https://placehold.co/400x400?text=No+Image'}")`}}
+                <div
+                  className="w-full h-48 bg-slate-100 dark:bg-slate-900 bg-center bg-no-repeat bg-contain p-4 group-hover:scale-110 transition-transform duration-700"
+                  style={{ backgroundImage: `url("${product.image_url || 'https://placehold.co/400x400?text=No+Image'}")` }}
                 ></div>
                 <div className="flex flex-col flex-1 p-5 gap-4 relative bg-white dark:bg-slate-800/80 z-10">
                   <div>
-                  <h3 className="text-slate-900 dark:text-white text-lg font-bold leading-tight line-clamp-1 mb-1 group-hover:text-primary transition-colors">
-  {product.url ? (
-    <a href={product.url} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()}>
-      {product.name}
-    </a>
-  ) : product.name}
-</h3>                    <p className="text-slate-500 dark:text-slate-400 text-sm capitalize">{product.priority} Priority</p>
+                    <h3 className="text-slate-900 dark:text-white text-lg font-bold leading-tight line-clamp-1 mb-1 group-hover:text-primary transition-colors">
+                      {product.url ? (
+                        <a href={product.url} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()}>
+                          {product.name}
+                        </a>
+                      ) : product.name}
+                    </h3>                    <p className="text-slate-500 dark:text-slate-400 text-sm capitalize">{product.priority} Priority</p>
                   </div>
                   <div className="flex items-center justify-between">
                     <div className="flex flex-col">
@@ -249,7 +256,7 @@ const filteredProducts = selectedCategory
                       )}
                     </div>
                   </div>
-                  <button 
+                  <button
                     onClick={() => handleOpenDetail(product)}
                     className="w-full py-2.5 mt-auto rounded-lg bg-primary hover:bg-primary/90 text-white text-sm font-semibold transition-all duration-300 hover:shadow-lg hover:shadow-primary/30 active:scale-[0.98] flex items-center justify-center gap-2 overflow-hidden relative after:absolute after:inset-0 after:bg-white/20 after:-translate-x-full hover:after:translate-x-full after:transition-transform after:duration-500"
                   >
@@ -263,9 +270,9 @@ const filteredProducts = selectedCategory
       </section>
 
       {/* Modals */}
-      <AddProductModal 
-        isOpen={isAddModalOpen} 
-        onClose={() => setIsAddModalOpen(false)} 
+      <AddProductModal
+        isOpen={isAddModalOpen}
+        onClose={() => setIsAddModalOpen(false)}
         onProductAdded={fetchProducts}
       />
 
@@ -275,8 +282,8 @@ const filteredProducts = selectedCategory
         onCategoryAdded={fetchCategories}
       />
 
-      <ProductDetailModal 
-        isOpen={isDetailModalOpen} 
+      <ProductDetailModal
+        isOpen={isDetailModalOpen}
         onClose={() => setIsDetailModalOpen(false)}
         product={selectedProduct}
         onProductDeleted={fetchProducts}
