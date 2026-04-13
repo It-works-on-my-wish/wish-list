@@ -26,16 +26,42 @@ def make_db_product(name="Phone", price=1000.0, url="https://www.hepsiburada.com
 
 
 def setup_supabase_products(mock_supa, products):
-    mock_supa.table.return_value.select.return_value.eq.return_value.execute.return_value.data = products
+    """
+    Wire up supabase mock for check_prices().
+    The scheduler now queries both 'products' and 'price_history' tables.
+    price_history returns [] so that should_check is always True in tests.
+    """
+    def table_side_effect(table_name):
+        m = MagicMock()
+        if table_name == "products":
+            m.select.return_value.eq.return_value.execute.return_value.data = products
+        elif table_name == "price_history":
+            # Return empty history → delta check skipped → should_check = True
+            m.select.return_value.eq.return_value.order.return_value.limit.return_value.execute.return_value.data = []
+            # Also handle insert chain used when saving price history
+            m.insert.return_value.execute.return_value.data = []
+        return m
+
+    mock_supa.table.side_effect = table_side_effect
 
 
 class TestCheckPricesFunction:
 
     def test_fetches_auto_track_products(self):
+        products_mock = MagicMock()
+        products_mock.select.return_value.eq.return_value.execute.return_value.data = []
+
+        def table_side_effect(table_name):
+            if table_name == "products":
+                return products_mock
+            m = MagicMock()
+            m.select.return_value.eq.return_value.order.return_value.limit.return_value.execute.return_value.data = []
+            return m
+
         with patch("app.scheduler.scheduler.supabase") as mock_supa:
-            setup_supabase_products(mock_supa, [])
+            mock_supa.table.side_effect = table_side_effect
             check_prices()
-            mock_supa.table.return_value.select.return_value.eq.assert_called_with("auto_track", True)
+            products_mock.select.return_value.eq.assert_called_with("auto_track", True)
 
     def test_skips_products_without_url(self):
         product = make_db_product()
@@ -64,14 +90,28 @@ class TestCheckPricesFunction:
         mock_strategy.extract_product_data.return_value = ScrapedProductData(
             title="Phone", source_domain="hepsiburada.com", current_price=899.0
         )
+        inserted_rows = []
+
+        def table_side_effect(table_name):
+            m = MagicMock()
+            if table_name == "products":
+                m.select.return_value.eq.return_value.execute.return_value.data = [product]
+                m.update.return_value.eq.return_value.execute.return_value.data = []
+            elif table_name == "price_history":
+                m.select.return_value.eq.return_value.order.return_value.limit.return_value.execute.return_value.data = []
+                def capture_insert(row):
+                    inserted_rows.append(row)
+                    return MagicMock()
+                m.insert.side_effect = capture_insert
+            return m
+
         with patch("app.scheduler.scheduler.supabase") as mock_supa, \
              patch(SCRAPER_FACTORY_PATH, return_value=mock_strategy):
-            setup_supabase_products(mock_supa, [product])
+            mock_supa.table.side_effect = table_side_effect
             check_prices()
-            insert_calls = mock_supa.table.return_value.insert.call_args_list
             assert any(
-                isinstance(c[0][0], dict) and c[0][0].get("price") == 899.0
-                for c in insert_calls
+                isinstance(r, dict) and r.get("price") == 899.0
+                for r in inserted_rows
             )
 
     def test_updates_current_price_in_products_table(self):
@@ -80,11 +120,22 @@ class TestCheckPricesFunction:
         mock_strategy.extract_product_data.return_value = ScrapedProductData(
             title="Phone", source_domain="hepsiburada.com", current_price=850.0
         )
+        products_mock = MagicMock()
+
+        def table_side_effect(table_name):
+            m = MagicMock()
+            if table_name == "products":
+                m.select.return_value.eq.return_value.execute.return_value.data = [product]
+                products_mock.update = m.update
+            elif table_name == "price_history":
+                m.select.return_value.eq.return_value.order.return_value.limit.return_value.execute.return_value.data = []
+            return m
+
         with patch("app.scheduler.scheduler.supabase") as mock_supa, \
              patch(SCRAPER_FACTORY_PATH, return_value=mock_strategy):
-            setup_supabase_products(mock_supa, [product])
+            mock_supa.table.side_effect = table_side_effect
             check_prices()
-            mock_supa.table.return_value.update.assert_called_with({"current_price": 850.0})
+            products_mock.update.assert_called_with({"current_price": 850.0})
 
     def test_skips_product_when_scraped_price_is_none(self):
         product = make_db_product()
