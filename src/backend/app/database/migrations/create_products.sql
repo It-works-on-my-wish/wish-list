@@ -12,6 +12,7 @@ CREATE TABLE IF NOT EXISTS public.products (
     target_price NUMERIC(10, 2),
     image_url TEXT,
     purchase_state TEXT DEFAULT 'pending' CHECK (purchase_state IN ('pending', 'purchased')),
+    is_favorite BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMPTZ DEFAULT now()
 );
 

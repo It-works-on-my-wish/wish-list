@@ -1,7 +1,7 @@
 import React from 'react';
 import NotificationBell from './NotificationBell';
 
-const Layout = ({ children }) => {
+const Layout = ({ children, searchQuery, setSearchQuery }) => {
   return (
     <div className="flex h-auto min-h-screen w-full flex-col overflow-x-hidden">
       <header className="flex items-center justify-between whitespace-nowrap border-b border-slate-200 dark:border-slate-800 px-6 py-4 lg:px-10 lg:py-4 sticky top-0 bg-background-light/90 dark:bg-background-dark/90 backdrop-blur-md z-10 transition-colors duration-300">
@@ -18,6 +18,8 @@ const Layout = ({ children }) => {
                 <span className="material-symbols-outlined text-[20px]">search</span>
               </div>
               <input 
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
                 className="form-input flex w-full min-w-0 flex-1 resize-none bg-transparent text-slate-900 dark:text-white focus:outline-none focus:ring-0 border-none h-full placeholder:text-slate-400 dark:placeholder:text-slate-500 px-2 text-sm font-medium leading-normal" 
                 placeholder="Search products..." 
               />

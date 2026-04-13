@@ -1,15 +1,23 @@
 import React, { useState, useEffect} from 'react';
 import { deleteProduct, updateProduct,getProductPriceHistory } from '../api';
 
-const ProductDetailModal = ({ isOpen, onClose, product, onProductDeleted }) => {
+const ProductDetailModal = ({ isOpen, onClose, product, onProductDeleted, onProductUpdated, categories = [] }) => {
   const [isDeleting, setIsDeleting] = useState(false);
   const [isPurchasing, setIsPurchasing] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [targetPrice, setTargetPrice] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("");
   const [priceHistory, setPriceHistory] = useState([]);
   useEffect(() => {
     if (isOpen && product) {
+      setTargetPrice(product.target_price || "");
+      setSelectedCategory(product.category_id || "");
       getProductPriceHistory(product.id)
         .then(data => setPriceHistory(data || []))
         .catch(err => console.error("Failed to load price history", err));
+    } else {
+      setIsEditing(false); // reset state on close
     }
   }, [isOpen, product]);
 
@@ -61,7 +69,23 @@ const ProductDetailModal = ({ isOpen, onClose, product, onProductDeleted }) => {
     }
   };
 
- 
+  const handleSaveDetails = async () => {
+    setIsSaving(true);
+    try {
+      const updatedProduct = await updateProduct(product.id, { 
+        target_price: targetPrice === "" ? null : Number(targetPrice),
+        category_id: selectedCategory === "" ? null : selectedCategory
+      });
+      setIsEditing(false);
+      if (onProductUpdated) onProductUpdated(updatedProduct);
+      if (onProductDeleted) onProductDeleted(); // refetch products
+    } catch (error) {
+      console.error("Failed to update product:", error);
+      alert("Failed to update product details");
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -116,8 +140,36 @@ const ProductDetailModal = ({ isOpen, onClose, product, onProductDeleted }) => {
                   </div>
                 )}
                 <div className="flex justify-between items-center group">
+                  <span className="text-slate-500 dark:text-slate-400 text-sm group-hover:text-primary transition-colors">Category</span>
+                  {isEditing ? (
+                    <select
+                      value={selectedCategory}
+                      onChange={(e) => setSelectedCategory(e.target.value)}
+                      className="w-36 text-right pl-2 pr-8 py-1 rounded border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm font-medium focus:ring-primary focus:border-primary outline-none appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width=%2224%22%20height=%2224%22%20xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cpath%20d=%22M7%2010l5%205%205-5H7z%22%20fill=%22%2394a3b8%22/%3E%3C/svg%3E')] bg-[position:right_0.2rem_center] bg-no-repeat"
+                    >
+                      <option value="">None</option>
+                      {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                    </select>
+                  ) : (
+                    <span className="font-medium text-slate-800 dark:text-slate-200">
+                      {product.category_id ? categories.find(c => c.id === product.category_id)?.name || 'Unknown' : 'None'}
+                    </span>
+                  )}
+                </div>
+                <div className="flex justify-between items-center group">
                   <span className="text-slate-500 dark:text-slate-400 text-sm group-hover:text-primary transition-colors">Target Price</span>
-                  <span className="font-bold text-green-600 dark:text-green-400">{product.target_price != null ? `₺${product.target_price.toLocaleString()}` : 'Not set'}</span>
+                  {isEditing ? (
+                    <input 
+                      type="number"
+                      step="0.01"
+                      value={targetPrice}
+                      onChange={(e) => setTargetPrice(e.target.value)}
+                      placeholder="e.g. 1500"
+                      className="w-24 text-right px-2 py-1 rounded border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm font-bold focus:ring-primary focus:border-primary outline-none text-green-600 dark:text-green-400 placeholder:opacity-50"
+                    />
+                  ) : (
+                    <span className="font-bold text-green-600 dark:text-green-400">{product.target_price != null ? `₺${product.target_price.toLocaleString()}` : 'Not set'}</span>
+                  )}
                 </div>
               </div>
             </div>
@@ -272,10 +324,32 @@ const ProductDetailModal = ({ isOpen, onClose, product, onProductDeleted }) => {
             {isDeleting ? 'Deleting...' : 'Abandon Tracking'}
           </button>
           <div className="flex gap-3">
-            <button className="px-5 py-2.5 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 text-sm font-medium transition-all flex items-center gap-2 active:scale-95">
-              <span className="material-symbols-outlined text-sm">edit</span>
-              Edit Details
-            </button>
+            {isEditing ? (
+              <div className="flex gap-2">
+                <button 
+                  onClick={() => setIsEditing(false)}
+                  disabled={isSaving}
+                  className="px-4 py-2.5 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700 text-sm font-medium transition-all"
+                >
+                  Cancel
+                </button>
+                <button 
+                  onClick={handleSaveDetails}
+                  disabled={isSaving}
+                  className="px-5 py-2.5 rounded-lg bg-primary hover:bg-primary/90 text-white text-sm font-medium transition-all flex items-center gap-2 active:scale-95 disabled:opacity-50"
+                >
+                  {isSaving ? "Saving..." : "Save Details"}
+                </button>
+              </div>
+            ) : (
+              <button 
+                onClick={() => setIsEditing(true)}
+                className="px-5 py-2.5 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 text-sm font-medium transition-all flex items-center gap-2 active:scale-95"
+              >
+                <span className="material-symbols-outlined text-sm">edit</span>
+                Edit Details
+              </button>
+            )}
             {!isPurchased ? (
               <button
                 onClick={handleMarkPurchased}

@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react';
 import AddProductModal from './AddProductModal';
 import AddCategoryModal from './AddCategoryModal';
 import ProductDetailModal from './ProductDetailModal';
-import { getUserProducts, listUserCategories, getUserStats } from '../api';
+import { getUserProducts, listUserCategories, getUserStats, updateProduct } from '../api';
 
-const WishlistDashboard = () => {
+const WishlistDashboard = ({ searchQuery = "" }) => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isAddCategoryModalOpen, setIsAddCategoryModalOpen] = useState(false); // is add new category page opened 
 
@@ -14,9 +14,12 @@ const WishlistDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(null);
-  const filteredProducts = selectedCategory
-    ? products.filter(p => p.category_id === selectedCategory)
-    : products;
+  
+  const filteredProducts = (selectedCategory === 'favorites'
+    ? products.filter(p => p.is_favorite)
+    : selectedCategory
+      ? products.filter(p => p.category_id === selectedCategory)
+      : products).filter(p => p.name.toLowerCase().includes(searchQuery.toLowerCase()));
 
   const TEST_USER_ID = "123e4567-e89b-12d3-a456-426614174000";
   const [stats, setStats] = useState({ tracked: 0, purchased: 0, total_savings: 0, price_drops_today: 0 });
@@ -74,6 +77,20 @@ const WishlistDashboard = () => {
     setIsDetailModalOpen(true);
   };
 
+  const handleToggleFavorite = async (product, e) => {
+    e.stopPropagation();
+    // optimistic ui update
+    setProducts(prev => prev.map(p => p.id === product.id ? {...p, is_favorite: !p.is_favorite} : p));
+    try {
+      // Assuming updateProduct is imported from api
+      await updateProduct(product.id, { is_favorite: !product.is_favorite });
+    } catch (err) {
+      console.error("Failed to toggle favorite", err);
+      // revert on failure
+      setProducts(prev => prev.map(p => p.id === product.id ? {...p, is_favorite: product.is_favorite} : p));
+    }
+  };
+
   return (
     <main className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col gap-8 animate-fade-in">
       <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -81,7 +98,7 @@ const WishlistDashboard = () => {
         <div className="group flex flex-col gap-3 rounded-xl p-6 bg-white dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/50 shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
           <div className="flex justify-between items-start">
             <p className="text-slate-500 dark:text-slate-400 text-sm font-semibold uppercase tracking-wider">Tracked Items</p>
-            <div className="p-2 bg-primary/10 rounded-lg text-primary group-hover:bg-primary group-hover:text-white transition-colors duration-300">
+            <div className="p-2 bg-primary/10 rounded-lg text-primary group-hover:bg-primary group-hover:text-white transition-colors duration-300 flex items-center justify-center">
               <span className="material-symbols-outlined text-[20px]">list_alt</span>
             </div>
           </div>
@@ -96,7 +113,7 @@ const WishlistDashboard = () => {
         <div className="group flex flex-col gap-3 rounded-xl p-6 bg-white dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/50 shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
           <div className="flex justify-between items-start">
             <p className="text-slate-500 dark:text-slate-400 text-sm font-semibold uppercase tracking-wider">Total Savings</p>
-            <div className="p-2 bg-green-500/10 rounded-lg text-green-500 group-hover:bg-green-500 group-hover:text-white transition-colors duration-300">
+            <div className="p-2 bg-green-500/10 rounded-lg text-green-500 group-hover:bg-green-500 group-hover:text-white transition-colors duration-300 flex items-center justify-center">
               <span className="material-symbols-outlined text-[20px]">savings</span>
             </div>
           </div>
@@ -111,7 +128,7 @@ const WishlistDashboard = () => {
         <div className="group flex flex-col gap-3 rounded-xl p-6 bg-white dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/50 shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
           <div className="flex justify-between items-start">
             <p className="text-slate-500 dark:text-slate-400 text-sm font-semibold uppercase tracking-wider">Price Drops Today</p>
-            <div className="p-2 bg-amber-500/10 rounded-lg text-amber-500 group-hover:bg-amber-500 group-hover:text-white transition-colors duration-300">
+            <div className="p-2 bg-amber-500/10 rounded-lg text-amber-500 group-hover:bg-amber-500 group-hover:text-white transition-colors duration-300 flex items-center justify-center">
               <span className="material-symbols-outlined text-[20px]">sell</span>
             </div>
           </div>
@@ -126,7 +143,7 @@ const WishlistDashboard = () => {
         <div className="group flex flex-col gap-3 rounded-xl p-6 bg-white dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/50 shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
           <div className="flex justify-between items-start">
             <p className="text-slate-500 dark:text-slate-400 text-sm font-semibold uppercase tracking-wider">Purchased</p>
-            <div className="p-2 bg-purple-500/10 rounded-lg text-purple-500 group-hover:bg-purple-500 group-hover:text-white transition-colors duration-300">
+            <div className="p-2 bg-purple-500/10 rounded-lg text-purple-500 group-hover:bg-purple-500 group-hover:text-white transition-colors duration-300 flex items-center justify-center">
               <span className="material-symbols-outlined text-[20px]">shopping_cart_checkout</span>
             </div>
           </div>
@@ -142,10 +159,10 @@ const WishlistDashboard = () => {
         <div className="flex items-center justify-between">
           <h2 className="text-2xl font-bold leading-tight relative inline-block after:content-[''] after:absolute after:-bottom-1 after:left-0 after:w-1/2 after:h-1 after:bg-primary after:rounded-full">Your Tracked Items</h2>
           <div className="flex gap-2">
-            <button className="p-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all duration-200 hover:shadow-md active:scale-95">
+            <button className="p-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all duration-200 hover:shadow-md active:scale-95 flex items-center justify-center">
               <span className="material-symbols-outlined text-[20px]">grid_view</span>
             </button>
-            <button className="p-2 rounded-lg border border-transparent text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all duration-200 hover:shadow-md active:scale-95">
+            <button className="p-2 rounded-lg border border-transparent text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all duration-200 hover:shadow-md active:scale-95 flex items-center justify-center">
               <span className="material-symbols-outlined text-[20px]">view_list</span>
             </button>
           </div>
@@ -164,6 +181,18 @@ const WishlistDashboard = () => {
                 }`}
             >
               All Items
+            </button>
+
+            <button
+              onClick={() => setSelectedCategory('favorites')}
+              className={`flex h-9 shrink-0 items-center justify-center rounded-full border transition-all duration-300 px-5 active:scale-95 text-sm font-semibold gap-1.5
+        ${selectedCategory === 'favorites'
+                    ? 'bg-red-500 text-white border-red-500 shadow-md shadow-red-500/20'
+                    : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-red-50 dark:hover:bg-red-900/10 hover:text-red-500 hover:border-red-200 dark:hover:border-red-800/50'
+                  }`}
+            >
+              <span className={`material-symbols-outlined text-[16px] ${selectedCategory === 'favorites' ? 'fill-current' : ''}`}>favorite</span>
+              Favorites
             </button>
 
             {categories.map(cat => (
@@ -224,8 +253,11 @@ const WishlistDashboard = () => {
                   <span className="material-symbols-outlined text-[14px]">{product.purchase_state === 'purchased' ? 'check_circle' : 'schedule'}</span>
                   {product.purchase_state === 'purchased' ? 'Purchased' : 'Pending'}
                 </div>
-                <button className="absolute top-3 right-3 z-10 p-2 rounded-full bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm text-slate-400 hover:text-red-500 hover:bg-white dark:hover:bg-slate-900 transition-all duration-300 shadow-sm hover:scale-110 active:scale-90">
-                  <span className="material-symbols-outlined text-[20px] fill-current">favorite</span>
+                <button 
+                  onClick={(e) => handleToggleFavorite(product, e)}
+                  className={`absolute top-3 right-3 z-10 p-2 rounded-full bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm transition-all duration-300 shadow-sm hover:scale-110 active:scale-90 flex items-center justify-center ${product.is_favorite ? 'text-red-500 hover:text-slate-400 hover:bg-white dark:hover:bg-slate-900' : 'text-slate-400 hover:text-red-500 hover:bg-white dark:hover:bg-slate-900'}`}
+                >
+                  <span className={`material-symbols-outlined text-[20px] ${product.is_favorite ? '[font-variation-settings:\'FILL\'_1]' : '[font-variation-settings:\'FILL\'_0]'}`}>favorite</span>
                 </button>
                 <div
                   className="w-full h-48 bg-slate-100 dark:bg-slate-900 bg-center bg-no-repeat bg-contain p-4 group-hover:scale-110 transition-transform duration-700"
@@ -287,6 +319,11 @@ const WishlistDashboard = () => {
         onClose={() => setIsDetailModalOpen(false)}
         product={selectedProduct}
         onProductDeleted={fetchProducts}
+        onProductUpdated={(updatedProduct) => {
+          setSelectedProduct(updatedProduct);
+          setProducts(prev => prev.map(p => p.id === updatedProduct.id ? updatedProduct : p));
+        }}
+        categories={categories}
       />
     </main>
   );

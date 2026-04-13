@@ -14,6 +14,7 @@ class ProductBase(BaseModel):
     target_price: Optional[float] = None
     image_url: Optional[str] = None
     purchase_state: Literal["pending", "purchased"] = "pending"
+    is_favorite: Optional[bool] = False
 
 class ProductCreate(ProductBase):
     pass
@@ -36,6 +37,7 @@ class ProductUpdate(BaseModel):
     target_price: Optional[float] = None
     image_url: Optional[str] = None
     purchase_state: Optional[Literal["pending", "purchased"]] = None
+    is_favorite: Optional[bool] = None
 
 
 class ProductScrapeRequest(BaseModel):
@@ -49,3 +51,4 @@ class ProductScrapeRequest(BaseModel):
     check_frequency: str = "daily"
     auto_track: bool = True
     target_price: Optional[float] = None
+    is_favorite: Optional[bool] = False
