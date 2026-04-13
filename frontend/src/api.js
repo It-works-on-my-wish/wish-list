@@ -65,4 +65,19 @@ export const getUserStats = async (userId) => {
   return response.data;
 };
 
+export const getUserNotifications = async (userId) => {
+  const response = await api.get(`/users/${userId}/notifications`);
+  return response.data;
+};
+
+export const markNotificationRead = async (notificationId) => {
+  const response = await api.put(`/notifications/${notificationId}/read`);
+  return response.data;
+};
+
+export const markAllNotificationsRead = async (userId) => {
+  const response = await api.put(`/users/${userId}/notifications/read`);
+  return response.data;
+};
+
 export default api;

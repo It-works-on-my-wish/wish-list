@@ -66,7 +66,7 @@ const ProductDetailModal = ({ isOpen, onClose, product, onProductDeleted }) => {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm z-0" onClick={onClose}></div>
-      <div className="relative z-10 bg-white dark:bg-slate-800 rounded-xl shadow-2xl w-full max-w-5xl flex flex-col overflow-hidden border border-slate-200 dark:border-slate-700 animate-slide-up">
+      <div className="relative z-10 bg-white dark:bg-slate-800 rounded-xl shadow-2xl w-full max-w-5xl h-[90vh] md:h-[80vh] min-h-[600px] flex flex-col overflow-hidden border border-slate-200 dark:border-slate-700 animate-slide-up">
 
         {/* Modal Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-slate-700">
@@ -83,7 +83,7 @@ const ProductDetailModal = ({ isOpen, onClose, product, onProductDeleted }) => {
         </div>
 
         {/* Modal Body */}
-        <div className="flex-1 p-6">
+        <div className="flex-1 p-6 overflow-y-auto w-full">
           <div className="flex flex-col lg:flex-row gap-8">
             {/* Left Column: Product Image & Info */}
             <div className="w-full lg:w-1/3 flex flex-col gap-6">
@@ -92,7 +92,7 @@ const ProductDetailModal = ({ isOpen, onClose, product, onProductDeleted }) => {
                 style={{ backgroundImage: `url("${product.image_url || 'https://placehold.co/400x400?text=No+Image'}")` }}
               ></div>
               <div>
-                <h3 className="text-2xl font-bold mb-2 break-words leading-tight">{product.name}</h3>
+                <h3 className="text-2xl font-bold mb-2 break-words leading-tight line-clamp-3" title={product.name}>{product.name}</h3>
                 <p className="text-slate-600 dark:text-slate-400 text-sm capitalize">{product.priority} Priority</p>
               </div>
               <div className="flex flex-col gap-4 bg-slate-50 dark:bg-[#151f2b] p-4 rounded-lg border border-slate-200 dark:border-slate-700 transition-colors hover:border-slate-300 dark:hover:border-slate-600">
@@ -142,78 +142,120 @@ const ProductDetailModal = ({ isOpen, onClose, product, onProductDeleted }) => {
                 <p className="text-slate-700 dark:text-slate-300 text-base font-medium mb-4">Price History (Last 3 Months)</p>
 
                 {/* Chart Area */}
-                <div className="flex flex-col flex-1 min-h-[240px] relative">
-                {priceHistory.length < 2 ? (
-  <div className="absolute inset-0 flex items-center justify-center text-slate-400 text-sm">
-    Not enough data yet
-  </div>
-) : (
-  <>
-    <svg className="absolute inset-0 h-full w-full" preserveAspectRatio="none" viewBox="0 0 100 100">
-      {(() => {
-        const prices = priceHistory.map(h => h.price);
-        const min = Math.min(...prices);
-        const max = Math.max(...prices);
-        const range = max - min || 1;
-        const points = prices.map((p, i) => {
-          const x = (i / (prices.length - 1)) * 100;
-          const y = 100 - ((p - min) / range) * 80 - 10;
-          return `${x},${y}`;
-        });
-        const pathD = `M${points.join(' L')}`;
-        const fillD = `M${points[0]} L${points.join(' L')} L100,100 L0,100 Z`;
-        return (
-          <>
-            <path d={fillD} fill="url(#chart-gradient)" opacity="0.2" />
-            <path d={pathD} fill="none" stroke="currentColor" className="text-primary" strokeWidth="2" strokeLinejoin="round" />
-            <defs>
-              <linearGradient id="chart-gradient" x1="0" x2="0" y1="0" y2="1">
-                <stop className="text-primary" offset="0%" stopColor="currentColor" stopOpacity="1" />
-                <stop className="text-primary" offset="100%" stopColor="currentColor" stopOpacity="0" />
-              </linearGradient>
-            </defs>
-          </>
-        );
-      })()}
-    </svg>
-  </>
-)}
-                  {/* Y-Axis Labels */}
-                  <div className="absolute left-0 top-0 bottom-8 w-12 flex flex-col justify-between text-xs text-slate-400">
-  {priceHistory.length >= 1 ? (
-    <>
-      <span>₺{Math.max(...priceHistory.map(h => h.price)).toLocaleString()}</span>
-      <span>₺{Math.min(...priceHistory.map(h => h.price)).toLocaleString()}</span>
-    </>
-  ) : (
-    <>
-      <span>—</span>
-      <span>—</span>
-    </>
-  )}
-</div>
-                  {/* Chart Lines */}
-                  <div className="absolute left-12 right-0 top-0 bottom-8 border-l border-b border-slate-200 dark:border-slate-700">
-                    <div className="absolute inset-0 flex flex-col justify-between">
-                      <div className="w-full border-t border-dashed border-slate-200 dark:border-slate-700/50"></div>
-                      <div className="w-full border-t border-dashed border-slate-200 dark:border-slate-700/50"></div>
-                      <div className="w-full border-t border-dashed border-slate-200 dark:border-slate-700/50"></div>
+                {(() => {
+                  const prices = priceHistory.map(h => h.price);
+                  const allValues = product.target_price != null ? [...prices, product.target_price] : prices;
+                  const chartMin = allValues.length > 0 ? Math.min(...allValues) : 0;
+                  const chartMax = allValues.length > 0 ? Math.max(...allValues) : 0;
+                  const chartRange = chartMax - chartMin || 1;
+                  
+                  const getPercentY = (val) => 100 - ((val - chartMin) / chartRange) * 80 - 10;
+                  const getPercentX = (i) => prices.length > 1 ? (i / (prices.length - 1)) * 100 : 50;
+
+                  return (
+                    <div className="flex flex-col flex-1 min-h-[240px] relative">
+                      {/* Y-Axis Labels */}
+                      <div className="absolute left-0 top-0 bottom-8 w-16 flex flex-col justify-between text-xs text-slate-400 pr-2 items-end">
+                        {allValues.length >= 1 ? (
+                          <>
+                            <span>₺{chartMax.toLocaleString()}</span>
+                            <span>₺{chartMin.toLocaleString()}</span>
+                          </>
+                        ) : (
+                          <>
+                            <span>—</span>
+                            <span>—</span>
+                          </>
+                        )}
+                      </div>
+
+                      {/* Chart Lines */}
+                      <div className="absolute left-16 right-4 lg:right-8 top-0 bottom-8 border-l border-b border-slate-200 dark:border-slate-700">
+                        <div className="absolute inset-0 flex flex-col justify-between z-0">
+                          <div className="w-full border-t border-dashed border-slate-200 dark:border-slate-700/50"></div>
+                          <div className="w-full border-t border-dashed border-slate-200 dark:border-slate-700/50"></div>
+                          <div className="w-full border-t border-dashed border-slate-200 dark:border-slate-700/50"></div>
+                        </div>
+
+                        {/* SVG Chart Container */}
+                        {priceHistory.length < 2 ? (
+                          <div className="absolute inset-0 flex items-center justify-center text-slate-400 text-sm z-10">
+                            Not enough data yet
+                          </div>
+                        ) : (
+                          <div className="absolute inset-x-0 inset-y-0 z-10 top-0 bottom-0 pointer-events-none">
+                            <svg className="absolute inset-0 h-full w-full" preserveAspectRatio="none" viewBox="0 0 100 100">
+                              {(() => {
+                                const points = prices.map((p, i) => `${getPercentX(i)},${getPercentY(p)}`);
+                                const pathD = `M${points.join(' L')}`;
+                                const fillD = `M${points[0]} L${points.join(' L')} L100,100 L0,100 Z`;
+                                return (
+                                  <>
+                                    <path d={fillD} fill="url(#chart-gradient)" opacity="0.2" />
+                                    <path d={pathD} fill="none" stroke="currentColor" className="text-primary" strokeWidth="2" strokeLinejoin="round" />
+                                    <defs>
+                                      <linearGradient id="chart-gradient" x1="0" x2="0" y1="0" y2="1">
+                                        <stop className="text-primary" offset="0%" stopColor="currentColor" stopOpacity="1" />
+                                        <stop className="text-primary" offset="100%" stopColor="currentColor" stopOpacity="0" />
+                                      </linearGradient>
+                                    </defs>
+                                  </>
+                                );
+                              })()}
+                            </svg>
+
+                            {/* HTML Points Overlay for no aspect-ratio distortion */}
+                            {prices.map((p, i) => {
+                                  const percentX = getPercentX(i);
+                                  const percentY = getPercentY(p);
+                                  return (
+                                    <React.Fragment key={i}>
+                                      {/* Vertical and Horizontal Grid Crosshairs strictly bound to chart canvas */}
+                                      <div className="absolute top-0 bottom-0 border-l border-dashed border-slate-300/60 dark:border-slate-600/40 pointer-events-none z-0" style={{ left: `${percentX}%` }}></div>
+                                      <div className="absolute left-0 right-0 border-t border-dashed border-slate-300/60 dark:border-slate-600/40 pointer-events-none z-0" style={{ top: `${percentY}%` }}></div>
+
+                                      <div 
+                                        className="absolute z-20"
+                                        style={{ 
+                                          left: `${percentX}%`, 
+                                          top: `${percentY}%`, 
+                                        }}
+                                      >
+                                        {/* The Point */}
+                                        <div className="absolute w-2.5 h-2.5 bg-white dark:bg-slate-800 border-2 border-primary rounded-full shadow-sm -translate-x-1/2 -translate-y-1/2 cursor-pointer hover:scale-150 transition-transform"></div>
+
+                                        {/* The Label */}
+                                        <div className="absolute -top-9 -translate-x-1/2 whitespace-nowrap flex flex-col items-center pointer-events-none bg-white/90 dark:bg-slate-800/90 px-1.5 py-0.5 rounded shadow-sm border border-slate-200 dark:border-slate-700 backdrop-blur-sm">
+                                            <span className="text-[10px] font-bold text-slate-800 dark:text-slate-200">₺{p.toLocaleString()}</span>
+                                            <span className="text-[9px] text-slate-500">{new Date(priceHistory[i].checked_at).toLocaleDateString('tr-TR', {month: 'short', day: 'numeric', hour: '2-digit', minute:'2-digit'})}</span>
+                                        </div>
+                                      </div>
+                                    </React.Fragment>
+                                  );
+                            })}
+                          </div>
+                        )}
+
+                        {/* Target Price Line */}
+                        {product.target_price != null && (
+                          <div className="absolute w-full border-t-2 border-green-500/50 flex z-0" style={{ top: `${getPercentY(product.target_price)}%` }}>
+                            <span className="absolute right-2 -top-5 text-xs text-green-600 dark:text-green-400 font-medium bg-slate-50/80 dark:bg-slate-800/80 px-1 backdrop-blur-sm rounded">Target: ₺{product.target_price.toLocaleString()}</span>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* X-Axis Labels */}
+                      <div className="absolute left-16 right-4 lg:right-8 bottom-0 h-8 flex justify-between items-end text-xs text-slate-400 px-1">
+                        {priceHistory.length >= 2 && (
+                          <>
+                            <span>{new Date(priceHistory[0].checked_at).toLocaleDateString('tr-TR', {month: 'short', day: 'numeric'})}</span>
+                            <span>{new Date(priceHistory[priceHistory.length-1].checked_at).toLocaleDateString('tr-TR', {month: 'short', day: 'numeric'})}</span>
+                          </>
+                        )}
+                      </div>
                     </div>
-                    {/* Target Price Line */}
-                    <div className="absolute w-full border-t-2 border-green-500/50 flex" style={{ top: '50%' }}>
-                      <span className="absolute right-2 -top-5 text-xs text-green-600 dark:text-green-400 font-medium">Target: {product.target_price != null ? `₺${product.target_price.toLocaleString()}` : 'N/A'}</span>
-                    </div>
-                  </div>
-                  {/* X-Axis Labels */}
-                  <div className="absolute left-12 right-0 bottom-0 h-8 flex justify-between items-end text-xs text-slate-400 px-2">
-  {priceHistory.length >= 2 && (
-    <>
-      <span>{new Date(priceHistory[0].checked_at).toLocaleDateString('tr-TR', {month: 'short', day: 'numeric'})}</span>
-      <span>{new Date(priceHistory[priceHistory.length-1].checked_at).toLocaleDateString('tr-TR', {month: 'short', day: 'numeric'})}</span>
-    </>
-  )}
-</div>
-                </div>
+                  );
+                })()}
               </div>
             </div>
           </div>

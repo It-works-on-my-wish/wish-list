@@ -3,8 +3,10 @@ from uuid import UUID
 from app.database.supabase_client import supabase
 from app.repositories.user_repository import UserRepository
 from app.schemas.user_schema import UserCreate
+from app.schemas.notification_schema import NotificationResponse
 from app.services.user_service import UserService
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
+from typing import List
 
 router = APIRouter()
 
@@ -69,3 +71,52 @@ def get_user_stats(user_id: UUID):
         "total_savings": round(total_savings, 2),
         "price_drops_today": price_drops_today,
     }
+
+
+@router.get("/users/{user_id}/notifications", response_model=List[NotificationResponse])
+def get_user_notifications(user_id: UUID):
+    try:
+        response = (
+            supabase.table("notifications")
+            .select("*")
+            .eq("user_id", str(user_id))
+            .order("created_at", desc=True)
+            .limit(20)
+            .execute()
+        )
+        return response.data
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.put("/notifications/{notification_id}/read", response_model=NotificationResponse)
+def mark_notification_read(notification_id: UUID):
+    try:
+        response = (
+            supabase.table("notifications")
+            .update({"is_read": True})
+            .eq("id", str(notification_id))
+            .execute()
+        )
+        if not response.data:
+            raise HTTPException(status_code=404, detail="Notification not found")
+        return response.data[0]
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.put("/users/{user_id}/notifications/read")
+def mark_all_notifications_read(user_id: UUID):
+    try:
+        response = (
+            supabase.table("notifications")
+            .update({"is_read": True})
+            .eq("user_id", str(user_id))
+            .eq("is_read", False)
+            .execute()
+        )
+        return {"detail": f"Marked as read"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
