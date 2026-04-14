@@ -3,19 +3,29 @@
 ## Screenshots
 
 ### Home Page
-![Wishlist UI](./screenshots/UI_dashboard.jpeg)
+<p align="center">
+  <img src="./screenshots/UI_dashboard.jpeg" width="500"/>
+</p>
 
 ### Add Product Screen
-![Add Product UI](./screenshots/UI_add_product_page.jpeg)
+<p align="center">
+  <img src="./screenshots/UI_add_product_page.jpeg" width="500"/>
+</p>
 
 ### Product Details Screen 
-![Product Details UI](./screenshots/UI_product_details.jpeg)
+<p align="center">
+  <img src="./screenshots/UI_product_details.jpeg" width="500"/>
+</p>
 
 ### Create Category Screen
-![Category Creation UI](./screenshots/UI_category_creation.jpeg)
+<p align="center">
+  <img src="./screenshots/UI_category_creation.jpeg" width="500"/>
+</p>
 
 ### Notifications Screen
-![Notifications UI](./screenshots/UI_notifications.jpeg)
+<p align="center">
+  <img src="./screenshots/UI_notifications.jpeg" width="500"/>
+</p>
 
 This is a full-stack web application designed for managing wishlists and tracking product prices. 
 
