@@ -1,6 +1,21 @@
 # Wishlist and Price Tracking Application
 
-![Wishlist UI Screenshot](./UI_screenshot.png)
+## Screenshots
+
+### Home Page
+![Wishlist UI](./screenshots/UI_dashboard.jpeg)
+
+### Add Product Screen
+![Add Product UI](./screenshots/UI_add_product_page.jpeg)
+
+### Product Details Screen 
+![Product Details UI](./screenshots/UI_product_details.jpeg)
+
+### Create Category Screen
+![Category Creation UI](./screenshots/UI_category_creation.jpeg)
+
+### Notifications Screen
+![Notifications UI](./screenshots/UI_notifications.jpeg)
 
 This is a full-stack web application designed for managing wishlists and tracking product prices. 
 
